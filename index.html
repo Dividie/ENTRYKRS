@@ -2,52 +2,42 @@
 <html lang="id" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Simulasi KRS Mahasiswa</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- html2canvas untuk Export JPG -->
+    <!-- html2canvas untuk Export Gambar -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
-    <!-- FontAwesome untuk Ikon -->
+    <!-- FontAwesome Icon -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         * {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* iOS Safe Area Padding Utilities */
-        .pb-safe { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
-        .pt-safe { padding-top: max(0.5rem, env(safe-area-inset-top)); }
-
-        /* Custom Touch Scrollbars */
-        .custom-scroll {
-            -webkit-overflow-scrolling: touch;
-        }
         .custom-scroll::-webkit-scrollbar {
             width: 5px;
             height: 5px;
         }
         .custom-scroll::-webkit-scrollbar-track {
             background: #f1f5f9;
-            border-radius: 999px;
         }
         .custom-scroll::-webkit-scrollbar-thumb {
             background: #cbd5e1;
-            border-radius: 999px;
+            border-radius: 4px;
         }
         .custom-scroll::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
 
-        /* Smooth Hide Scrollbar for Pills Navigation */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -56,12 +46,11 @@
             scrollbar-width: none;
         }
 
-        /* Loading Overlay */
         #loader { 
             display: none; 
             position: fixed; 
             inset: 0; 
-            background: rgba(255,255,255,0.92); 
+            background: rgba(255,255,255,0.9); 
             z-index: 999; 
             flex-direction: column; 
             justify-content: center; 
@@ -69,248 +58,247 @@
         }
     </style>
 </head>
-<body class="text-slate-800 bg-slate-50 min-h-full flex flex-col antialiased selection:bg-blue-500 selection:text-white">
+<body class="text-slate-800 bg-slate-50 min-h-full flex flex-col antialiased">
 
-    <div id="loader" class="flex backdrop-blur-sm">
-        <div class="relative flex items-center justify-center">
-            <div class="w-14 h-14 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-            <i class="fas fa-graduation-cap absolute text-blue-600 text-base"></i>
-        </div>
-        <p class="text-slate-700 font-bold mt-4 text-xs sm:text-sm tracking-wide" id="loader-text">Memproses...</p>
+    <!-- Loading Overlay -->
+    <div id="loader">
+        <div class="w-10 h-10 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        <p class="text-slate-700 font-semibold mt-3 text-xs" id="loader-text">Memproses...</p>
     </div>
 
-    <div id="toast-container" class="fixed top-3 right-0 left-0 sm:left-auto sm:right-4 z-[100] flex flex-col gap-2 px-4 sm:px-0 pointer-events-none max-w-md mx-auto sm:w-full"></div>
+    <!-- Container Toast Alerts -->
+    <div id="toast-container" class="fixed top-3 right-0 left-0 sm:left-auto sm:right-4 z-[100] flex flex-col gap-2 px-4 sm:px-0 pointer-events-none max-w-sm mx-auto sm:w-full"></div>
 
-    <div id="report-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[90] hidden flex items-center justify-center p-4 transition-opacity duration-200 opacity-0" onclick="if(event.target === this) closeReportModal()">
-        <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-100 transform transition-transform duration-200 scale-95" id="report-modal-card">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold shrink-0 shadow-sm">
+    <!-- Modal Lapor Data Salah -->
+    <div id="report-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-[90] hidden flex items-center justify-center p-4 transition-opacity duration-200 opacity-0" onclick="if(event.target === this) closeReportModal()">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl border border-slate-100 transform transition-transform duration-200 scale-95" id="report-modal-card">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold">
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
                     <div>
-                        <h3 class="font-extrabold text-slate-800 text-base leading-tight">Lapor Data Salah</h3>
-                        <p class="text-[11px] text-slate-400 font-medium">Bantu kami memperbarui data jadwal</p>
+                        <h3 class="font-bold text-slate-900 text-sm">Lapor Data Salah</h3>
+                        <p class="text-[11px] text-slate-500">Info bantuan perbaikan jadwal</p>
                     </div>
                 </div>
-                <button onclick="closeReportModal()" class="text-slate-400 hover:text-slate-600 w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center transition">
-                    <i class="fas fa-times text-base"></i>
+                <button onclick="closeReportModal()" class="text-slate-400 hover:text-slate-600 w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center transition">
+                    <i class="fas fa-times text-xs"></i>
                 </button>
             </div>
             
-            <div class="bg-slate-50 p-4 rounded-2xl text-slate-600 text-xs leading-relaxed space-y-2 mb-5 border border-slate-100">
-                <p class="font-medium text-slate-700">Jika menemukan kesalahan data mata kuliah atau jadwal, silakan kirim email ke:</p>
-                <div class="p-2.5 bg-white rounded-xl border border-slate-200 flex items-center justify-between">
-                    <a class="font-bold text-blue-600">xcydes@gmail.com</a>
-                    <i class="fas fa-envelope text-blue-500 text-xs"></i>
+            <div class="bg-slate-50 p-3 rounded-xl text-slate-600 text-xs space-y-2 mb-4 border border-slate-100">
+                <p>Temuan kesalahan jadwal/mata kuliah dapat dikirim via email ke:</p>
+                <div class="p-2 bg-white rounded-lg border border-slate-200 flex items-center justify-between">
+                    <a href="mailto:xcydes@gmail.com" class="font-bold text-indigo-600 hover:underline text-xs truncate">xcydes@gmail.com</a>
+                    <i class="fas fa-envelope text-indigo-500 text-xs"></i>
                 </div>
-                <p class="text-slate-400 text-[11px] pt-1">Terima kasih atas bantuan dan partisipasi Anda!</p>
             </div>
 
-            <div class="flex justify-end gap-2">
-                <button onclick="closeReportModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl text-xs font-bold transition shadow-sm active:scale-95">
-                    Tutup
-                </button>
-            </div>
+            <button onclick="closeReportModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl text-xs font-semibold transition">
+                Tutup
+            </button>
         </div>
     </div>
 
-    <div class="max-w-[1600px] w-full mx-auto p-2 sm:p-3 md:p-4 flex flex-col min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden pb-20 lg:pb-3">
+    <!-- Main Container Layout -->
+    <div class="max-w-[1500px] w-full mx-auto p-2 sm:p-4 flex flex-col min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden pb-16 sm:pb-4">
         
         <!-- Header Utama -->
-        <header class="flex flex-col md:flex-row justify-between items-stretch md:items-center mb-2.5 sm:mb-3 bg-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 gap-3 shrink-0">
+        <header class="flex flex-col md:flex-row justify-between items-stretch md:items-center mb-3 bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-xs border border-slate-200/80 gap-3 shrink-0">
             <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
-                        <i class="fas fa-graduation-cap text-lg sm:text-xl"></i>
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-bold shadow-xs shrink-0">
+                        <i class="fas fa-graduation-cap text-sm"></i>
                     </div>
                     <div>
-                        <h1 class="text-base sm:text-lg md:text-xl font-extrabold text-slate-900 tracking-tight leading-tight">Simulasi KRS-Mu</h1>
-                        <p class="text-[10px] sm:text-xs text-slate-500 font-medium line-clamp-1">Khusus mahasiswa semester 3 Karena saya malas input data(maaf full AI wkwk)</p>
+                        <h1 class="text-base font-bold text-slate-900 tracking-tight leading-none">Simulasi KRS Mahasiswa</h1>
+                        <p class="text-[11px] text-slate-500 font-medium mt-1">Penyusun Jadwal Perkuliahan</p>
                     </div>
                 </div>
 
-                <!-- Lapor Button on Mobile -->
-                <button onclick="showReportModal()" class="md:hidden bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 p-2.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 shrink-0 active:scale-95" title="Lapor Data Salah">
+                <!-- Lapor Button Mobile -->
+                <button onclick="showReportModal()" class="md:hidden bg-slate-100 text-slate-600 p-2 rounded-lg text-xs hover:bg-slate-200 transition" title="Lapor Data">
                     <i class="fas fa-exclamation-circle text-amber-600"></i>
                 </button>
             </div>
 
-            <!-- Stats & Action Buttons (Desktop & Tablet) -->
-            <div class="flex items-center gap-2 sm:gap-3 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-2.5 md:pt-0 border-slate-100">
+            <!-- Header Actions & SKS Indicator -->
+            <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-2 md:pt-0 border-slate-100">
                 
-                <!-- SKS Gauge Widget (Desktop View) -->
-                <div class="hidden sm:flex bg-slate-50 p-2 px-3 rounded-2xl border border-slate-200 items-center gap-3 shrink-0">
+                <!-- SKS Gauge Widget (Desktop) -->
+                <div class="hidden sm:flex bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 items-center gap-3 shrink-0">
                     <div>
-                        <div class="flex justify-between items-baseline gap-2 mb-1">
+                        <div class="flex justify-between items-baseline gap-2 mb-0.5">
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Beban</span>
-                            <span class="text-[11px] font-bold text-blue-600" id="sks-percentage">0%</span>
+                            <span class="text-[10px] font-bold text-indigo-600" id="sks-percentage">0%</span>
                         </div>
-                        <div class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
-                            <div id="sks-bar" class="bg-blue-600 h-full rounded-full transition-all duration-300 w-0"></div>
+                        <div class="w-24 bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                            <div id="sks-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-300 w-0"></div>
                         </div>
                     </div>
                     <div class="border-l border-slate-200 pl-3 text-right">
                         <div class="flex items-baseline justify-end">
-                            <span class="text-xl font-extrabold text-slate-800 leading-none" id="total-sks">0</span>
-                            <span class="text-[10px] text-slate-400 font-bold ml-0.5">/24</span>
+                            <span class="text-base font-extrabold text-slate-800 leading-none" id="total-sks">0</span>
+                            <span class="text-[10px] text-slate-400 font-bold">/24</span>
                         </div>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mt-0.5">SKS</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">SKS</span>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex items-center gap-2 w-full md:w-auto justify-end">
-                    <button onclick="showReportModal()" class="hidden md:flex bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-3 py-2.5 rounded-xl font-bold text-xs transition items-center gap-1.5 shrink-0 active:scale-95" title="Laporkan jika ada kesalahan informasi">
+                <div class="flex items-center gap-1.5 w-full md:w-auto justify-end">
+                    <button onclick="showReportModal()" class="hidden md:flex bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg font-medium text-xs transition items-center gap-1.5 shrink-0" title="Laporkan kesalahan informasi">
                         <i class="fas fa-exclamation-circle text-amber-600"></i>
-                        <span class="text-[11px]">Lapor Data</span>
+                        <span>Lapor Data</span>
                     </button>
 
-                    <button onclick="clearAllCourses()" id="btn-reset" class="bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 px-3 sm:px-3.5 py-2.5 rounded-xl font-bold text-xs transition border border-slate-200 hover:border-rose-200 flex items-center justify-center gap-1.5 opacity-50 cursor-not-allowed active:scale-95 shrink-0" disabled title="Kosongkan Semua Jadwal">
+                    <button onclick="clearAllCourses()" id="btn-reset" class="bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 px-3 py-2 rounded-lg font-medium text-xs transition border border-slate-200 hover:border-rose-200 flex items-center gap-1.5 opacity-50 cursor-not-allowed shrink-0" disabled>
                         <i class="fas fa-trash-alt text-xs"></i>
-                        <span class="text-[11px] hidden sm:inline">Reset</span>
+                        <span class="hidden sm:inline">Reset</span>
                     </button>
                     
-                    <button onclick="exportJadwal()" id="btn-export" class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 sm:px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2 opacity-50 cursor-not-allowed active:scale-95 shrink-0 flex-grow sm:flex-grow-0" disabled>
+                    <button onclick="exportJadwal()" id="btn-export" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-lg font-semibold text-xs shadow-xs transition flex items-center justify-center gap-1.5 opacity-50 cursor-not-allowed shrink-0 flex-grow sm:flex-grow-0" disabled>
                         <i class="fas fa-download text-xs"></i>
-                        <span class="text-[11px]">Simpan JPG</span>
+                        <span>Simpan JPG</span>
                     </button>
                 </div>
             </div>
         </header>
 
-        <div class="flex lg:hidden bg-slate-200/70 p-1 rounded-2xl mb-2.5 text-xs font-bold shrink-0">
-            <button id="tab-btn-courses" onclick="switchMobileTab('courses')" class="flex-1 py-2 px-3 rounded-xl transition-all duration-200 bg-white text-blue-600 shadow-sm flex items-center justify-center gap-2">
+        <!-- Mobile Navigation Tabs (Layar Kecil) -->
+        <div class="flex lg:hidden bg-slate-200/80 p-1 rounded-xl mb-2.5 text-xs font-semibold shrink-0">
+            <button id="tab-btn-courses" onclick="switchMobileTab('courses')" class="flex-1 py-1.5 px-3 rounded-lg transition-all bg-white text-indigo-600 shadow-xs flex items-center justify-center gap-1.5">
                 <i class="fas fa-list-ul"></i>
                 <span>Pilih Matkul</span>
             </button>
-            <button id="tab-btn-schedule" onclick="switchMobileTab('schedule')" class="flex-1 py-2 px-3 rounded-xl transition-all duration-200 text-slate-600 flex items-center justify-center gap-2 relative">
+            <button id="tab-btn-schedule" onclick="switchMobileTab('schedule')" class="flex-1 py-1.5 px-3 rounded-lg transition-all text-slate-600 flex items-center justify-center gap-1.5 relative">
                 <i class="fas fa-calendar-alt"></i>
                 <span>Jadwal Saya</span>
-                <span id="mobile-tab-badge" class="bg-blue-600 text-white text-[9px] px-1.5 py-0.2 rounded-full hidden">0</span>
+                <span id="mobile-tab-badge" class="bg-indigo-600 text-white text-[9px] px-1.5 rounded-full hidden">0</span>
             </button>
         </div>
 
+        <!-- Working Area Grid -->
         <div class="flex-grow flex flex-col lg:flex-row gap-3 min-h-0 overflow-hidden relative">
             
-            <!-- Panel Kiri: Daftar Mata Kuliah -->
-            <div id="panel-courses" class="w-full lg:w-80 xl:w-96 flex flex-col bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden shrink-0 flex-grow lg:flex-grow-0 h-full">
-                <div class="p-3 sm:p-3.5 border-b border-slate-100 bg-slate-50/70 flex flex-col gap-2 shrink-0">
+            <!-- Panel Kiri: Katalog & Pencarian Matkul -->
+            <div id="panel-courses" class="w-full lg:w-80 xl:w-88 flex flex-col bg-white rounded-xl sm:rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden shrink-0 flex-grow lg:flex-grow-0 h-full">
+                <div class="p-3 border-b border-slate-100 bg-slate-50/50 flex flex-col gap-2 shrink-0">
                     
                     <!-- Filter Semester -->
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label for="semester-select" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Filter Semester</label>
-                            <span class="text-[10px] text-slate-500 font-bold bg-slate-200/60 px-2 py-0.5 rounded-full" id="course-count-badge">0 matakuliah</span>
+                            <span class="text-[10px] text-slate-500 font-medium bg-slate-200/70 px-2 py-0.5 rounded-full" id="course-count-badge">0 matakuliah</span>
                         </div>
                         <div class="relative">
-                            <select id="semester-select" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-xs font-bold text-slate-700 shadow-sm transition-all appearance-none cursor-pointer pr-8">
+                            <select id="semester-select" class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold text-slate-700 shadow-2xs transition cursor-pointer pr-8 focus:border-indigo-500">
                                 <option value="all">Semua Semester</option>
                                 <option value="1">Semester 1</option>
                                 <option value="3" selected>Semester 3</option>
                                 <option value="5">Semester 5</option>
                                 <option value="7">Semester 7</option>
                             </select>
-                            <i class="fas fa-chevron-down absolute right-3 top-3 text-xs text-slate-400 pointer-events-none"></i>
+                            <i class="fas fa-chevron-down absolute right-3 top-2.5 text-xs text-slate-400 pointer-events-none"></i>
                         </div>
                     </div>
 
                     <!-- Input Pencarian -->
                     <div class="relative">
                         <i class="fas fa-search absolute left-3 top-2.5 text-xs text-slate-400"></i>
-                        <input type="text" id="search-input" placeholder="Cari matakuliah, kode, dosen..." 
-                            class="w-full pl-8 pr-8 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-xs transition-all shadow-sm placeholder:text-slate-400 font-medium">
-                        <button id="btn-clear-search" onclick="clearSearch()" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 text-xs w-5 h-5 rounded-full flex items-center justify-center active:scale-90">
+                        <input type="text" id="search-input" placeholder="Cari matkul, kode, dosen..." 
+                            class="w-full pl-8 pr-8 py-1.5 bg-white border border-slate-200 rounded-lg outline-none text-xs transition shadow-2xs placeholder:text-slate-400 font-medium focus:border-indigo-500">
+                        <button id="btn-clear-search" onclick="clearSearch()" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 text-xs w-4 h-4 rounded-full flex items-center justify-center">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                 </div>
                 
-                <!-- Container Scrollable List -->
-                <div class="flex-grow overflow-y-auto p-2.5 custom-scroll bg-slate-50/40 space-y-2 min-h-0" id="course-list">
-                    <!-- List Mata Kuliah dirender via JavaScript -->
+                <!-- Scrollable Course Cards List -->
+                <div class="flex-grow overflow-y-auto p-2 custom-scroll bg-slate-50/30 space-y-2 min-h-0" id="course-list">
+                    <!-- Cards dirender via JavaScript -->
                 </div>
             </div>
 
-            <!-- Panel Kanan: Tabel Kanban Jadwal -->
-            <div id="panel-schedule" class="hidden lg:flex w-full lg:flex-grow flex-col bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden relative min-h-0 h-full" id="capture-area">
+            <!-- Panel Kanan: Matrix Jadwal Mingguan -->
+            <div id="panel-schedule" class="hidden lg:flex w-full lg:flex-grow flex-col bg-white rounded-xl sm:rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden relative min-h-0 h-full">
                 
-                <!-- Header khusus Export Gambar (Tersembunyi di UI normal) -->
-                <div id="export-header" class="hidden p-5 text-center border-b border-slate-200 bg-white">
-                    <div class="inline-flex items-center gap-2 text-blue-600 font-extrabold text-xs uppercase tracking-wider mb-1">
+                <!-- Export Header (Hidden in normal UI) -->
+                <div id="export-header" class="hidden p-4 text-center border-b border-slate-200 bg-white">
+                    <div class="inline-flex items-center gap-1.5 text-indigo-600 font-bold text-xs uppercase tracking-wider mb-1">
                         <i class="fas fa-graduation-cap"></i> Simulasi KRS Mahasiswa
                     </div>
-                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Jadwal Perkuliahan Terpilih</h2>
-                    <p class="text-xs text-slate-500 font-medium mt-1" id="export-time"></p>
+                    <h2 class="text-xl font-extrabold text-slate-900">Jadwal Perkuliahan Terpilih</h2>
+                    <p class="text-xs text-slate-500 mt-0.5" id="export-time"></p>
                 </div>
 
-                <!-- Canvas Area Utama -->
-                <div class="flex-grow overflow-auto p-3 sm:p-4 custom-scroll bg-slate-50/40 flex flex-col min-h-0">
+                <!-- Schedule Area Container -->
+                <div class="flex-grow overflow-auto p-3 custom-scroll bg-slate-50/30 flex flex-col min-h-0">
                     
-                    <!-- Header Kanban / Title + Day Switcher on Mobile -->
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3 pb-2.5 border-b border-slate-200/80 shrink-0" id="title-jadwal">
+                    <!-- Matrix Header Bar -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3 pb-2 border-b border-slate-200/80 shrink-0" id="title-jadwal">
                         <div class="flex items-center justify-between w-full sm:w-auto">
                             <div class="flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
-                                <h2 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Matrik Jadwal Mingguan</h2>
+                                <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                                <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Jadwal Mingguan</h2>
                             </div>
-                            <span class="text-xs font-bold text-slate-500 sm:hidden" id="selected-summary-text-mobile">0 Kelas</span>
+                            <span class="text-xs font-medium text-slate-500 sm:hidden" id="selected-summary-text-mobile">0 Kelas</span>
                         </div>
 
-                        <!-- Mobile Filter Days Selector (Visible on mobile/tablet) -->
+                        <!-- Mobile Filter Days Selector -->
                         <div class="flex items-center gap-1 overflow-x-auto w-full sm:w-auto no-scrollbar py-0.5">
                             <span class="text-[10px] font-bold text-slate-400 uppercase mr-1 shrink-0 lg:hidden">Filter:</span>
-                            <button onclick="setMobileDayFilter('ALL')" id="day-filter-ALL" class="day-filter-btn active text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-blue-600 text-white shrink-0 transition">Semua</button>
-                            <button onclick="setMobileDayFilter('Senin')" id="day-filter-Senin" class="day-filter-btn text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition">Senin</button>
-                            <button onclick="setMobileDayFilter('Selasa')" id="day-filter-Selasa" class="day-filter-btn text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition">Selasa</button>
-                            <button onclick="setMobileDayFilter('Rabu')" id="day-filter-Rabu" class="day-filter-btn text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition">Rabu</button>
-                            <button onclick="setMobileDayFilter('Kamis')" id="day-filter-Kamis" class="day-filter-btn text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition">Kamis</button>
-                            <button onclick="setMobileDayFilter('Jumat')" id="day-filter-Jumat" class="day-filter-btn text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition">Jumat</button>
+                            <button onclick="setMobileDayFilter('ALL')" id="day-filter-ALL" class="day-filter-btn active text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-600 text-white shrink-0 transition">Semua</button>
+                            <button onclick="setMobileDayFilter('Senin')" id="day-filter-Senin" class="day-filter-btn text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition">Senin</button>
+                            <button onclick="setMobileDayFilter('Selasa')" id="day-filter-Selasa" class="day-filter-btn text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition">Selasa</button>
+                            <button onclick="setMobileDayFilter('Rabu')" id="day-filter-Rabu" class="day-filter-btn text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition">Rabu</button>
+                            <button onclick="setMobileDayFilter('Kamis')" id="day-filter-Kamis" class="day-filter-btn text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition">Kamis</button>
+                            <button onclick="setMobileDayFilter('Jumat')" id="day-filter-Jumat" class="day-filter-btn text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition">Jumat</button>
                         </div>
 
-                        <span class="text-xs font-bold text-slate-500 hidden sm:inline" id="selected-summary-text">0 Kelas terpilih</span>
+                        <span class="text-xs font-semibold text-slate-500 hidden sm:inline" id="selected-summary-text">0 Kelas terpilih</span>
                     </div>
                     
                     <div id="selected-courses-container" class="w-full flex-grow flex flex-col min-h-0">
-                        <!-- Tabel Kanban dirender JS -->
+                        <!-- Columns Kanban dirender JS -->
                     </div>
                 </div>
 
-                <!-- Footer khusus Export Gambar (Tersembunyi di UI normal) -->
-                <div id="export-footer" class="hidden p-4 border-t border-slate-200 bg-slate-50">
+                <!-- Export Footer (Hidden in normal UI) -->
+                <div id="export-footer" class="hidden p-3 border-t border-slate-200 bg-slate-50">
                     <div class="flex justify-between items-center text-xs">
-                        <span class="font-bold text-slate-500">Dicetak via Simulasi KRS Mahasiswa</span>
-                        <span class="font-black text-slate-900 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">Total: <span id="export-total-sks" class="text-blue-600">0</span> SKS</span>
+                        <span class="font-medium text-slate-500">Dicetak via Simulasi KRS Mahasiswa</span>
+                        <span class="font-bold text-slate-900 bg-white px-2.5 py-1 rounded-lg border border-slate-200">Total SKS: <span id="export-total-sks" class="text-indigo-600">0</span></span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 p-2.5 px-4 sm:hidden z-40 flex items-center justify-between shadow-lg pb-safe">
+    <!-- Sticky Bottom Bar for Mobile View -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-slate-200 p-2.5 px-4 sm:hidden z-40 flex items-center justify-between shadow-md">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex flex-col items-center justify-center shrink-0">
-                <span class="text-sm font-extrabold leading-none" id="mobile-total-sks">0</span>
-                <span class="text-[8px] font-bold uppercase tracking-wider text-blue-400">/24 SKS</span>
+            <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 flex flex-col items-center justify-center shrink-0">
+                <span class="text-xs font-extrabold leading-none" id="mobile-total-sks">0</span>
+                <span class="text-[8px] font-semibold text-indigo-400 uppercase">/24</span>
             </div>
             <div>
-                <div class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Total Beban SKS</div>
-                <div class="w-28 bg-slate-200 h-2 rounded-full overflow-hidden mt-1">
-                    <div id="mobile-sks-bar" class="bg-blue-600 h-full rounded-full transition-all duration-300 w-0"></div>
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Beban SKS</div>
+                <div class="w-24 bg-slate-200 h-1.5 rounded-full overflow-hidden mt-0.5">
+                    <div id="mobile-sks-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-300 w-0"></div>
                 </div>
             </div>
         </div>
 
-        <button onclick="switchMobileTab('schedule')" class="bg-slate-900 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 active:scale-95 shadow-sm">
+        <button onclick="switchMobileTab('schedule')" class="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5">
             <i class="fas fa-calendar-week text-xs"></i>
-            <span>Jadwal</span>
+            <span>Lihat Jadwal</span>
         </button>
     </div>
 
     <script>
-        // --- DATA MATA KULIAH (DATABASE) ---
-
-        // Data Semester 1
+        // --- DATA MATA KULIAH ---
         const db_semester_1 = [
             { id: 's1_1', semester: 1, kode: 'IFE101A', kelas: 'A', nama: 'Bahasa Inggris', sks: 2, dosen: 'Dr. AISYAH RIRIN PERWIKASIH UTARI, S.S., M.Pd', hari: 'Kamis', mulai: '11:20', selesai: '12:59', ruang: 'J.3.11' },
             { id: 's1_2', semester: 1, kode: 'IFE101B', kelas: 'B', nama: 'Bahasa Inggris', sks: 2, dosen: 'Dr. AISYAH RIRIN PERWIKASIH UTARI, S.S., M.Pd', hari: 'Kamis', mulai: '08:00', selesai: '09:39', ruang: 'J.4.10' },
@@ -353,7 +341,6 @@
             { id: 's1_32', semester: 1, kode: 'IFE115D', kelas: 'D', nama: 'Arsitektur dan Organisasi Komputer', sks: 3, dosen: 'ALVIN RAINALDY HAKIM, S.Kom., M.Kom.', hari: 'Rabu', mulai: '13:00', selesai: '15:29', ruang: 'J.3.03' }
         ];
 
-        // Data Semester 3
         const db_semester_3 = [
             { id: 's3_1', semester: 3, kode: 'IFE201A', kelas: 'A', nama: 'Statistik dan Probabilitas', sks: 3, dosen: 'ESTI WIJAYANTI, M.Kom', hari: 'Selasa', mulai: '10:30', selesai: '12:59', ruang: 'J.4.10' },
             { id: 's3_2', semester: 3, kode: 'IFE201B', kelas: 'B', nama: 'Statistik dan Probabilitas', sks: 3, dosen: 'ESTI WIJAYANTI, M.Kom', hari: 'Selasa', mulai: '08:00', selesai: '10:29', ruang: 'J.4.10' },
@@ -373,11 +360,11 @@
             { id: 's3_14', semester: 3, kode: 'IFE205D', kelas: 'D', nama: 'Pemrograman Berorientasi Objek', sks: 3, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Selasa', mulai: '10:30', selesai: '12:09', ruang: 'J.4.06' },
             { id: 's3_15', semester: 3, kode: 'IFE205E', kelas: 'E', nama: 'Pemrograman Berorientasi Objek', sks: 3, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Rabu', mulai: '11:20', selesai: '12:59', ruang: 'J.4.10' },
 
-            { id: 's3_16', semester: 3, kode: 'IFE207A', kelas: 'A', nama: 'Praktikum Pemrograman Berorientasi Objek', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Selasa', mulai: '08:00', selesai: '10:29', ruang: 'I.3.06' },
-            { id: 's3_17', semester: 3, kode: 'IFE207B', kelas: 'B', nama: 'Praktikum Pemrograman Berorientasi Objek', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Selasa', mulai: '10:30', selesai: '12:59', ruang: 'I.3.06' },
-            { id: 's3_18', semester: 3, kode: 'IFE207C', kelas: 'C', nama: 'Praktikum Pemrograman Berorientasi Objek', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Selasa', mulai: '13:00', selesai: '15:29', ruang: 'I.3.06' },
-            { id: 's3_19', semester: 3, kode: 'IFE207D', kelas: 'D', nama: 'Praktikum Pemrograman Berorientasi Objek', sks: 2, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Kamis', mulai: '08:00', selesai: '10:29', ruang: 'I.3.04' },
-            { id: 's3_20', semester: 3, kode: 'IFE207E', kelas: 'E', nama: 'Praktikum Pemrograman Berorientasi Objek', sks: 2, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Kamis', mulai: '10:30', selesai: '12:59', ruang: 'I.3.04' },
+            { id: 's3_16', semester: 3, kode: 'IFE207A', kelas: 'A', nama: 'Praktikum PBO', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Selasa', mulai: '08:00', selesai: '10:29', ruang: 'I.3.06' },
+            { id: 's3_17', semester: 3, kode: 'IFE207B', kelas: 'B', nama: 'Praktikum PBO', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Selasa', mulai: '10:30', selesai: '12:59', ruang: 'I.3.06' },
+            { id: 's3_18', semester: 3, kode: 'IFE207C', kelas: 'C', nama: 'Praktikum PBO', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Selasa', mulai: '13:00', selesai: '15:29', ruang: 'I.3.06' },
+            { id: 's3_19', semester: 3, kode: 'IFE207D', kelas: 'D', nama: 'Praktikum PBO', sks: 2, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Kamis', mulai: '08:00', selesai: '10:29', ruang: 'I.3.04' },
+            { id: 's3_20', semester: 3, kode: 'IFE207E', kelas: 'E', nama: 'Praktikum PBO', sks: 2, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Kamis', mulai: '10:30', selesai: '12:59', ruang: 'I.3.04' },
 
             { id: 's3_21', semester: 3, kode: 'IFE209A', kelas: 'A', nama: 'Basis Data', sks: 2, dosen: 'Dr. ANASTASYA LATUBESSY, S.Kom, M.Cs', hari: 'Kamis', mulai: '08:00', selesai: '09:39', ruang: 'J.3.01' },
             { id: 's3_22', semester: 3, kode: 'IFE209B', kelas: 'B', nama: 'Basis Data', sks: 2, dosen: 'Dr. ANASTASYA LATUBESSY, S.Kom, M.Cs', hari: 'Senin', mulai: '08:00', selesai: '09:39', ruang: 'J.4.03' },
@@ -404,7 +391,6 @@
             { id: 's3_40', semester: 3, kode: 'IFE215E', kelas: 'E', nama: 'Praktikum Jaringan Komputer', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Rabu', mulai: '08:00', selesai: '10:29', ruang: 'I.3.03' }
         ];
 
-        // Data Semester 5
         const db_semester_5 = [
             { id: 's5_1', semester: 5, kode: 'MKW301A', kelas: 'A', nama: 'Bahasa Indonesia', sks: 2, dosen: 'Dr. LUTHFA NUGRAHENI, S.Pd, M.Pd.', hari: 'Senin', mulai: '10:30', selesai: '12:09', ruang: 'J.4.10' },
             { id: 's5_2', semester: 5, kode: 'MKW301B', kelas: 'B', nama: 'Bahasa Indonesia', sks: 2, dosen: 'Dr. LUTHFA NUGRAHENI, S.Pd, M.Pd.', hari: 'Senin', mulai: '13:50', selesai: '15:29', ruang: 'J.4.10' },
@@ -414,7 +400,6 @@
             { id: 's5_6', semester: 5, kode: 'MKW301F', kelas: 'F', nama: 'Bahasa Indonesia', sks: 2, dosen: 'Dr., Drs. MOHAMMAD KANZUNNUDIN, MPd', hari: 'Jumat', mulai: '08:00', selesai: '09:39', ruang: 'J.4.10' }
         ];
 
-        // Data Semester 7
         const db_semester_7 = [
             { id: 's7_1', semester: 7, kode: 'FTI401', kelas: '-', nama: 'Technopreneurship', sks: 2, dosen: 'ARIEF SUSANTO, ST.M.Kom', hari: 'Senin', mulai: '11:20', selesai: '12:59', ruang: 'J.4.06' },
             { id: 's7_2', semester: 7, kode: 'FTI403A', kelas: 'A', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Senin', mulai: '08:00', selesai: '10:29', ruang: 'J.4.04' },
@@ -424,10 +409,9 @@
             { id: 's7_6', semester: 7, kode: 'FTI403E', kelas: 'E', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Senin', mulai: '13:00', selesai: '15:29', ruang: 'J.4.04' }
         ];
 
-        // Combine database
         const allCourses = [...db_semester_1, ...db_semester_3, ...db_semester_5, ...db_semester_7];
 
-        // --- APPLICATION STATE ---
+        // --- APP STATE ---
         let selectedCourses = [];
         const MAX_SKS = 24;
         const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
@@ -436,7 +420,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderCourseList();
             
-            // Search Input Event
             const searchInput = document.getElementById('search-input');
             const clearBtn = document.getElementById('btn-clear-search');
             
@@ -449,13 +432,11 @@
                 renderCourseList();
             });
 
-            // Semester Filter Event
             document.getElementById('semester-select').addEventListener('change', () => {
                 renderCourseList();
             });
         });
 
-        // Mobile Tab Switcher
         function switchMobileTab(tab) {
             const panelCourses = document.getElementById('panel-courses');
             const panelSchedule = document.getElementById('panel-schedule');
@@ -467,27 +448,26 @@
                 panelSchedule.classList.add('hidden');
                 panelSchedule.classList.remove('flex');
                 
-                btnCourses.className = "flex-1 py-2 px-3 rounded-xl transition-all duration-200 bg-white text-blue-600 shadow-sm flex items-center justify-center gap-2";
-                btnSchedule.className = "flex-1 py-2 px-3 rounded-xl transition-all duration-200 text-slate-600 flex items-center justify-center gap-2 relative";
+                btnCourses.className = "flex-1 py-1.5 px-3 rounded-lg transition-all bg-white text-indigo-600 shadow-xs flex items-center justify-center gap-1.5";
+                btnSchedule.className = "flex-1 py-1.5 px-3 rounded-lg transition-all text-slate-600 flex items-center justify-center gap-1.5 relative";
             } else {
                 panelCourses.classList.add('hidden');
                 panelSchedule.classList.remove('hidden');
                 panelSchedule.classList.add('flex');
                 
-                btnSchedule.className = "flex-1 py-2 px-3 rounded-xl transition-all duration-200 bg-white text-blue-600 shadow-sm flex items-center justify-center gap-2 relative";
-                btnCourses.className = "flex-1 py-2 px-3 rounded-xl transition-all duration-200 text-slate-600 flex items-center justify-center gap-2";
+                btnSchedule.className = "flex-1 py-1.5 px-3 rounded-lg transition-all bg-white text-indigo-600 shadow-xs flex items-center justify-center gap-1.5 relative";
+                btnCourses.className = "flex-1 py-1.5 px-3 rounded-lg transition-all text-slate-600 flex items-center justify-center gap-1.5";
             }
         }
 
-        // Mobile Day Filter
         function setMobileDayFilter(day) {
             activeMobileDayFilter = day;
             document.querySelectorAll('.day-filter-btn').forEach(btn => {
-                btn.className = "day-filter-btn text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition";
+                btn.className = "day-filter-btn text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition";
             });
             const activeBtn = document.getElementById(`day-filter-${day}`);
             if(activeBtn) {
-                activeBtn.className = "day-filter-btn active text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-blue-600 text-white shrink-0 transition";
+                activeBtn.className = "day-filter-btn active text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-600 text-white shrink-0 transition";
             }
             renderSelectedCourses();
         }
@@ -517,17 +497,16 @@
                 return matchSemester && matchSearch;
             });
 
-            // Update badge count
             document.getElementById('course-count-badge').textContent = `${filtered.length} matakuliah`;
 
             if (filtered.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center p-8 my-auto">
-                        <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                            <i class="fas fa-search text-base"></i>
+                    <div class="text-center p-6 my-auto">
+                        <div class="w-10 h-10 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-search text-xs"></i>
                         </div>
-                        <p class="text-slate-700 text-xs font-bold">Tidak ditemukan matakuliah</p>
-                        <p class="text-[11px] text-slate-400 mt-1">Coba kata kunci lain atau ubah filter semester.</p>
+                        <p class="text-slate-700 text-xs font-semibold">Matakuliah tidak ditemukan</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Coba ubah kata kunci atau filter.</p>
                     </div>`;
                 return;
             }
@@ -536,48 +515,44 @@
                 const isSelected = selectedCourses.some(sc => sc.id === course.id);
                 
                 const card = document.createElement('div');
-                card.className = `p-3 rounded-2xl border transition-all duration-200 relative group ${
+                card.className = `p-2.5 rounded-xl border transition duration-150 relative ${
                     isSelected 
-                        ? 'bg-slate-100/90 border-slate-300 opacity-60' 
-                        : 'bg-white border-slate-200/90 hover:border-blue-400 hover:shadow-md cursor-pointer active:scale-[0.99]'
+                        ? 'bg-slate-100 border-slate-200 opacity-60' 
+                        : 'bg-white border-slate-200/80 hover:border-indigo-400 cursor-pointer shadow-2xs'
                 }`;
                 
                 card.innerHTML = `
                     <div class="flex justify-between items-start gap-2">
                         <div class="flex-grow min-w-0">
-                            <!-- Badges -->
-                            <div class="flex flex-wrap items-center gap-1 mb-1.5">
-                                <span class="bg-blue-50 text-blue-700 border border-blue-100 text-[9px] font-extrabold px-1.5 py-0.2 rounded-md">Sem ${course.semester}</span>
-                                <span class="bg-slate-100 text-slate-700 border border-slate-200 text-[9px] font-extrabold px-1.5 py-0.2 rounded-md">${course.kode}</span>
-                                <span class="bg-amber-50 text-amber-800 border border-amber-200 text-[9px] font-black px-1.5 py-0.2 rounded-md">Kls ${course.kelas}</span>
-                                <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 text-[9px] font-extrabold px-1.5 py-0.2 rounded-md">${course.sks} SKS</span>
+                            <div class="flex flex-wrap items-center gap-1 mb-1">
+                                <span class="bg-indigo-50 text-indigo-700 text-[9px] font-bold px-1.5 py-0.2 rounded">Sem ${course.semester}</span>
+                                <span class="bg-slate-100 text-slate-700 text-[9px] font-bold px-1.5 py-0.2 rounded">${course.kode}</span>
+                                <span class="bg-amber-50 text-amber-800 text-[9px] font-extrabold px-1.5 py-0.2 rounded">Kls ${course.kelas}</span>
+                                <span class="bg-emerald-50 text-emerald-800 text-[9px] font-bold px-1.5 py-0.2 rounded">${course.sks} SKS</span>
                             </div>
 
-                            <!-- Course Title -->
-                            <h4 class="font-extrabold text-slate-900 text-xs leading-snug mb-1.5 truncate" title="${course.nama}">${course.nama}</h4>
+                            <h4 class="font-bold text-slate-900 text-xs leading-snug mb-1 truncate">${course.nama}</h4>
 
-                            <!-- Information Grid -->
-                            <div class="text-[10px] text-slate-500 space-y-1">
+                            <div class="text-[10px] text-slate-500 space-y-0.5">
                                 <div class="flex items-center gap-1.5">
-                                    <i class="fas fa-clock w-3.5 text-center text-blue-500"></i> 
-                                    <span class="font-bold text-slate-700">${course.hari}, ${course.mulai} - ${course.selesai}</span>
+                                    <i class="fas fa-clock w-3 text-center text-indigo-500"></i> 
+                                    <span class="font-semibold text-slate-700">${course.hari}, ${course.mulai} - ${course.selesai}</span>
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <i class="fas fa-location-dot w-3.5 text-center text-rose-500"></i> 
+                                    <i class="fas fa-location-dot w-3 text-center text-rose-500"></i> 
                                     <span>Ruang ${course.ruang}</span>
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <i class="fas fa-user-tie w-3.5 text-center text-slate-400"></i> 
+                                    <i class="fas fa-user-tie w-3 text-center text-slate-400"></i> 
                                     <span class="truncate">${course.dosen}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Add / Selected Indicator Button -->
                         <div class="shrink-0 pt-0.5">
                             ${isSelected 
-                                ? `<span class="bg-emerald-100 text-emerald-700 text-xs rounded-xl font-bold flex items-center justify-center w-8 h-8" title="Sudah dipilih"><i class="fas fa-check"></i></span>`
-                                : `<button class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center w-8 h-8 transition-transform active:scale-90 shadow-sm" title="Tambah ke Jadwal"><i class="fas fa-plus"></i></button>`
+                                ? `<span class="bg-emerald-100 text-emerald-700 text-xs rounded-lg font-bold flex items-center justify-center w-7 h-7"><i class="fas fa-check"></i></span>`
+                                : `<button class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center justify-center w-7 h-7 transition shadow-2xs"><i class="fas fa-plus"></i></button>`
                             }
                         </div>
                     </div>
@@ -607,34 +582,30 @@
                 return;
             }
 
-            // Check Max SKS Limit
             const total = selectedCourses.reduce((sum, c) => sum + parseInt(c.sks || 0), 0);
             if (total + parseInt(newCourse.sks || 0) > MAX_SKS) {
-                showToast(`<b>Batas SKS Terlampaui!</b><br>Maksimal total beban SKS adalah ${MAX_SKS} SKS.`, 'error');
+                showToast(`<b>SKS Penuh!</b> Maksimal total beban adalah ${MAX_SKS} SKS.`, 'error');
                 return;
             }
 
-            // Collision Detection
+            // Collision check
             const conflict = selectedCourses.find(c => {
                 if (c.hari !== newCourse.hari) return false;
-                
                 const existingStartMins = timeToMinutes(c.mulai);
                 const existingEndMins = timeToMinutes(c.selesai);
-                
                 return (newStartMins < existingEndMins) && (existingStartMins < newEndMins);
             });
 
             if (conflict) {
-                showToast(`<b>Jadwal Bentrok!</b><br><b>${newCourse.nama}</b> (Kelas ${newCourse.kelas}) beririsan waktu dengan <b>${conflict.nama}</b> pada hari ${conflict.hari} (${conflict.mulai}-${conflict.selesai}).`, 'error');
+                showToast(`<b>Bentrok!</b> ${newCourse.nama} (Kls ${newCourse.kelas}) bersamaan dengan <b>${conflict.nama}</b> pada hari ${conflict.hari} (${conflict.mulai}-${conflict.selesai}).`, 'error');
                 return;
             }
 
-            // Add course
             const courseToAdd = {...newCourse, _startMins: newStartMins};
             selectedCourses.push(courseToAdd);
             
             updateUI();
-            showToast(`<b>${newCourse.nama}</b> (Kelas ${newCourse.kelas}) berhasil ditambahkan!`, 'success');
+            showToast(`<b>${newCourse.nama}</b> (Kls ${newCourse.kelas}) ditambahkan!`, 'success');
         }
 
         function removeCourse(id) {
@@ -656,7 +627,6 @@
         function updateUI() {
             const total = selectedCourses.reduce((sum, c) => sum + parseInt(c.sks || 0), 0);
             
-            // Update counters & gauge
             document.getElementById('total-sks').textContent = total;
             document.getElementById('mobile-total-sks').textContent = total;
             document.getElementById('export-total-sks').textContent = total;
@@ -669,10 +639,9 @@
             mobileSksBar.style.width = `${pct}%`;
             document.getElementById('sks-percentage').textContent = `${pct}%`;
             
-            // Dynamic color gauge
             const barClass = pct > 90 ? "bg-rose-500 h-full rounded-full transition-all duration-300" 
                            : pct > 75 ? "bg-amber-500 h-full rounded-full transition-all duration-300" 
-                           : "bg-blue-600 h-full rounded-full transition-all duration-300";
+                           : "bg-indigo-600 h-full rounded-full transition-all duration-300";
             
             sksBar.className = barClass;
             mobileSksBar.className = barClass;
@@ -681,7 +650,6 @@
             document.getElementById('selected-summary-text').textContent = summaryText;
             document.getElementById('selected-summary-text-mobile').textContent = `${selectedCourses.length} Kelas`;
 
-            // Mobile Tab Badge
             const mobileBadge = document.getElementById('mobile-tab-badge');
             if (selectedCourses.length > 0) {
                 mobileBadge.textContent = selectedCourses.length;
@@ -690,7 +658,6 @@
                 mobileBadge.classList.add('hidden');
             }
 
-            // Enable/Disable Action Buttons
             const btnExport = document.getElementById('btn-export');
             const btnReset = document.getElementById('btn-reset');
             
@@ -716,19 +683,18 @@
 
             if (selectedCourses.length === 0) {
                 container.innerHTML = `
-                    <div class="flex-grow flex flex-col items-center justify-center p-6 sm:p-10 text-center my-auto">
-                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-blue-50 text-blue-500 rounded-3xl flex items-center justify-center mb-4 shadow-sm border border-blue-100/80">
-                            <i class="fas fa-calendar-week text-2xl sm:text-3xl"></i>
+                    <div class="flex-grow flex flex-col items-center justify-center p-6 text-center my-auto">
+                        <div class="w-14 h-14 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-3 border border-indigo-100">
+                            <i class="fas fa-calendar-week text-2xl"></i>
                         </div>
-                        <h3 class="text-sm sm:text-base font-extrabold text-slate-800">Jadwal Kuliah Belum Terisi</h3>
-                        <p class="text-xs text-slate-400 mt-1 max-w-xs sm:max-w-sm leading-relaxed font-medium">
-                            Pilih mata kuliah dari panel disebelah kiri (atau tab "Pilih Matkul") untuk mensimulasikan jadwal perkuliahan Anda.
+                        <h3 class="text-sm font-bold text-slate-800">Jadwal Kuliah Masih Kosong</h3>
+                        <p class="text-xs text-slate-400 mt-1 max-w-xs leading-relaxed font-medium">
+                            Pilih mata kuliah dari daftar sebelah kiri untuk menyusun jadwal perkuliahan Anda.
                         </p>
                     </div>`;
                 return;
             }
 
-            // Grouping by Day
             const grouped = {};
             days.forEach(day => grouped[day] = []);
             
@@ -736,73 +702,61 @@
                 if (grouped[c.hari]) grouped[c.hari].push(c);
             });
 
-            // Filter days based on mobile selection
             const visibleDays = activeMobileDayFilter === 'ALL' 
                 ? days 
                 : days.filter(d => d === activeMobileDayFilter);
 
             let html = `
                 <div class="w-full overflow-x-auto custom-scroll flex-grow">
-                    <div class="min-w-full sm:min-w-[850px] flex flex-col h-full"> 
-                        <!-- Baris Header Hari -->
-                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-2.5 sm:gap-3 mb-3">
+                    <div class="min-w-full sm:min-w-[780px] flex flex-col h-full"> 
+                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-2.5 mb-2.5">
             `;
             
             visibleDays.forEach(day => {
                 const count = grouped[day].length;
                 const badge = count > 0 
-                    ? `<span class="bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full ml-2">${count}</span>` 
+                    ? `<span class="bg-indigo-600 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full ml-1.5">${count}</span>` 
                     : '';
                 html += `
-                    <div class="font-black text-center text-slate-800 bg-white py-2 sm:py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-sm border border-slate-200/80 flex items-center justify-center">
+                    <div class="font-bold text-center text-slate-800 bg-white py-1.5 rounded-lg text-xs uppercase tracking-wider shadow-2xs border border-slate-200 flex items-center justify-center">
                         ${day} ${badge}
                     </div>`;
             });
             
-            html += `</div><!-- Baris Kolom Jadwal --><div class="grid grid-cols-1 sm:grid-cols-5 gap-2.5 sm:gap-3 flex-grow">`;
+            html += `</div><div class="grid grid-cols-1 sm:grid-cols-5 gap-2.5 flex-grow">`;
 
             visibleDays.forEach((day, colIdx) => {
-                html += `<div class="flex flex-col gap-2 min-h-[140px] sm:min-h-[220px] bg-slate-100/60 p-2 rounded-2xl border border-slate-200/60">`;
+                html += `<div class="flex flex-col gap-2 min-h-[120px] sm:min-h-[200px] bg-slate-100/50 p-2 rounded-xl border border-slate-200/60">`;
                 
-                // Sort by start time
                 grouped[day].sort((a, b) => a._startMins - b._startMins);
                 
-                grouped[day].forEach((course, i) => {
-                    const colorAccents = [
-                        'border-l-blue-500 bg-blue-50/30', 
-                        'border-l-emerald-500 bg-emerald-50/30', 
-                        'border-l-purple-500 bg-purple-50/30', 
-                        'border-l-amber-500 bg-amber-50/30', 
-                        'border-l-indigo-500 bg-indigo-50/30'
-                    ];
-                    const accent = colorAccents[(colIdx + i) % colorAccents.length];
-                    
+                grouped[day].forEach((course) => {
                     html += `
-                        <div class="p-3 rounded-2xl border border-slate-200 bg-white shadow-sm relative overflow-hidden group hover:shadow-md transition-all border-l-4 ${accent}">
-                            <div class="flex justify-between items-start gap-1 mb-1.5">
-                                <h4 class="font-extrabold text-slate-900 text-xs leading-snug pr-1">${course.nama}</h4>
-                                <button onclick="removeCourse('${course.id}')" class="delete-btn text-slate-400 hover:text-rose-600 hover:bg-rose-50 w-6 h-6 rounded-lg transition-colors flex items-center justify-center shrink-0 active:scale-90" title="Hapus Kelas">
-                                    <i class="fas fa-times text-xs"></i>
+                        <div class="p-2.5 rounded-xl border border-slate-200 bg-white shadow-2xs relative overflow-hidden group hover:border-indigo-300 transition border-l-3 border-l-indigo-600">
+                            <div class="flex justify-between items-start gap-1 mb-1">
+                                <h4 class="font-bold text-slate-900 text-xs leading-snug pr-1">${course.nama}</h4>
+                                <button onclick="removeCourse('${course.id}')" class="delete-btn text-slate-400 hover:text-rose-600 hover:bg-rose-50 w-5 h-5 rounded transition flex items-center justify-center shrink-0" title="Hapus Kelas">
+                                    <i class="fas fa-times text-[10px]"></i>
                                 </button>
                             </div>
                             
-                            <div class="flex flex-wrap items-center gap-1 mb-2">
-                                <span class="text-[9px] font-black text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded border border-blue-100">Sem ${course.semester}</span>
-                                <span class="text-[9px] font-bold text-slate-700 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">
+                            <div class="flex flex-wrap items-center gap-1 mb-1.5">
+                                <span class="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1 rounded">Sem ${course.semester}</span>
+                                <span class="text-[9px] font-medium text-slate-700 bg-slate-100 px-1 rounded">
                                     ${course.kode} • Kls ${course.kelas}
                                 </span>
-                                <span class="text-[9px] font-black text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-100">${course.sks} SKS</span>
+                                <span class="text-[9px] font-bold text-emerald-800 bg-emerald-50 px-1 rounded">${course.sks} SKS</span>
                             </div>
 
-                            <div class="text-[10px] text-slate-500 space-y-1 pt-0.5">
-                                <div class="flex items-center gap-1 font-extrabold text-blue-700 bg-blue-50/80 px-2 py-0.5 rounded-md border border-blue-100/80 w-fit text-[9px]">
-                                    <i class="fas fa-clock text-blue-500"></i> ${course.mulai} - ${course.selesai}
+                            <div class="text-[10px] text-slate-500 space-y-0.5">
+                                <div class="flex items-center gap-1 font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded w-fit text-[9px]">
+                                    <i class="fas fa-clock text-indigo-500"></i> ${course.mulai} - ${course.selesai}
                                 </div>
-                                <div class="flex items-center gap-1.5 text-slate-700 font-bold text-[10px]">
+                                <div class="flex items-center gap-1 text-slate-700 font-semibold text-[10px]">
                                     <i class="fas fa-location-dot text-rose-500 w-3 text-center"></i>
                                     <span class="truncate">Ruang ${course.ruang}</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 text-slate-500 text-[10px]">
+                                <div class="flex items-center gap-1 text-slate-500 text-[10px]">
                                     <i class="fas fa-user-tie text-slate-400 w-3 text-center"></i>
                                     <span class="truncate">${course.dosen}</span>
                                 </div>
@@ -813,8 +767,8 @@
 
                 if(grouped[day].length === 0) {
                     html += `
-                        <div class="flex-grow flex items-center justify-center p-3 opacity-50 border border-dashed border-slate-300/80 rounded-xl min-h-[80px]">
-                            <span class="text-[9px] font-bold text-slate-400 tracking-wider uppercase">Kosong</span>
+                        <div class="flex-grow flex items-center justify-center p-2 opacity-40 border border-dashed border-slate-300 rounded-lg min-h-[60px]">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Kosong</span>
                         </div>`;
                 }
 
@@ -839,7 +793,6 @@
             const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById('export-time').textContent = `Dicetak pada: ${dateStr}`;
 
-            // Reset day filter to ALL for complete print
             const prevFilter = activeMobileDayFilter;
             activeMobileDayFilter = 'ALL';
             renderSelectedCourses();
@@ -854,14 +807,14 @@
             captureArea.className = "w-full flex flex-col bg-white overflow-visible rounded-none border-none shadow-none";
 
             try {
-                await new Promise(r => setTimeout(r, 400));
+                await new Promise(r => setTimeout(r, 300));
 
                 const canvas = await html2canvas(captureArea, {
                     scale: 2, 
                     backgroundColor: '#ffffff',
                     useCORS: true,
                     logging: false,
-                    windowWidth: 1250
+                    windowWidth: 1200
                 });
 
                 const link = document.createElement('a');
@@ -881,7 +834,6 @@
                 captureArea.className = origClasses;
                 document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = '');
                 
-                // Restore previous mobile day filter
                 activeMobileDayFilter = prevFilter;
                 renderSelectedCourses();
                 
@@ -896,22 +848,22 @@
             const config = {
                 success: { color: 'bg-emerald-50 text-emerald-950 border-emerald-300', icon: 'fa-check-circle text-emerald-600' },
                 error: { color: 'bg-rose-50 text-rose-950 border-rose-300', icon: 'fa-exclamation-circle text-rose-600' },
-                info: { color: 'bg-blue-50 text-blue-950 border-blue-300', icon: 'fa-info-circle text-blue-600' }
+                info: { color: 'bg-indigo-50 text-indigo-950 border-indigo-300', icon: 'fa-info-circle text-indigo-600' }
             };
 
-            toast.className = `flex items-start gap-3 p-3.5 rounded-2xl shadow-xl border ${config[type].color} transition-all duration-300 transform translate-y-[-10px] opacity-0 pointer-events-auto w-full backdrop-blur-md`;
-            toast.innerHTML = `<i class="fas ${config[type].icon} text-base mt-0.5 shrink-0"></i> <div class="text-xs font-semibold leading-relaxed">${message}</div>`;
+            toast.className = `flex items-start gap-2.5 p-3 rounded-xl shadow-lg border ${config[type].color} transition-all duration-200 transform translate-y-[-8px] opacity-0 pointer-events-auto w-full backdrop-blur-xs`;
+            toast.innerHTML = `<i class="fas ${config[type].icon} text-sm mt-0.5 shrink-0"></i> <div class="text-xs font-medium leading-snug">${message}</div>`;
             
             container.appendChild(toast);
             
             requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-[-10px]', 'opacity-0');
+                toast.classList.remove('translate-y-[-8px]', 'opacity-0');
             });
 
             setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-[-10px]');
-                setTimeout(() => toast.remove(), 300);
-            }, 3800);
+                toast.classList.add('opacity-0', 'translate-y-[-8px]');
+                setTimeout(() => toast.remove(), 250);
+            }, 3500);
         }
 
         function showLoader(msg) {
