@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulasi SKS Mahasiswa</title>
     
-    <!-- Tailwind CSS untuk Styling -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- html2canvas untuk Export JPG -->
@@ -15,7 +15,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
@@ -25,96 +25,153 @@
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
         /* Loading Overlay */
-        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 999; flex-direction: column; justify-content: center; align-items: center; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.92); z-index: 999; flex-direction: column; justify-content: center; align-items: center; }
     </style>
 </head>
-<body class="text-slate-800">
+<body class="text-slate-800 bg-slate-50 min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white">
 
     <!-- Loading Screen -->
     <div id="loader" class="flex">
-        <i class="fas fa-circle-notch fa-spin text-4xl text-blue-600 mb-3"></i>
-        <p class="text-slate-600 font-medium" id="loader-text">Memproses...</p>
+        <div class="relative flex items-center justify-center">
+            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            <i class="fas fa-graduation-cap absolute text-blue-600 text-sm"></i>
+        </div>
+        <p class="text-slate-700 font-semibold mt-4 text-sm tracking-wide" id="loader-text">Memproses...</p>
     </div>
 
     <!-- Notification Toast Container -->
-    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
 
-    <div class="max-w-[1400px] mx-auto p-4 md:p-6 h-screen flex flex-col">
+    <div class="max-w-[1500px] w-full mx-auto p-2 md:p-3 flex flex-col min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden">
         
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-200 gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-800"><i class="fas fa-calendar-alt text-blue-500 mr-2"></i>Simulasi KRS</h1>
-                <p class="text-sm text-slate-500 mt-1">Pilih mata kuliah tanpa bentrok jadwal.</p>
+        <!-- Header Utama -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 bg-white p-3 md:p-3.5 rounded-2xl shadow-sm border border-slate-200/80 gap-3 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+                    <i class="fas fa-graduation-cap text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-extrabold text-slate-800 tracking-tight leading-tight">Simulasi KRS-Mu</h1>
+                    <p class="text-[11px] md:text-xs text-slate-500 font-medium">Simulasi ini hanya untuk mahasiswa semester 3 karna saya malas input data.</p>
+                </div>
             </div>
-            <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-                <div class="bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 text-center flex-shrink-0">
-                    <span class="block text-[10px] text-blue-600 font-bold uppercase tracking-wider">Total SKS</span>
-                    <div class="flex items-baseline justify-center">
-                        <span class="text-2xl font-black text-blue-700 leading-none" id="total-sks">0</span>
-                        <span class="text-sm text-blue-500 font-semibold ml-1">/24</span>
+
+            <!-- Stats & Action Buttons -->
+            <div class="flex items-center gap-2.5 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-2.5 md:pt-0 border-slate-100">
+                <!-- SKS Gauge Widget -->
+                <div class="bg-slate-50 p-2 px-3 rounded-xl border border-slate-200 flex items-center gap-3 shrink-0">
+                    <div>
+                        <div class="flex justify-between items-baseline gap-2 mb-0.5">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Beban</span>
+                            <span class="text-[11px] font-bold text-blue-600" id="sks-percentage">0%</span>
+                        </div>
+                        <div class="w-24 bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                            <div id="sks-bar" class="bg-blue-600 h-full rounded-full transition-all duration-300 w-0"></div>
+                        </div>
+                    </div>
+                    <div class="border-l border-slate-200 pl-2.5 text-right">
+                        <div class="flex items-baseline justify-end">
+                            <span class="text-xl font-black text-slate-800 leading-none" id="total-sks">0</span>
+                            <span class="text-[10px] text-slate-400 font-semibold ml-0.5">/24</span>
+                        </div>
+                        <span class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider block mt-0.5">SKS</span>
                     </div>
                 </div>
-                <button onclick="exportJadwal()" id="btn-export" class="bg-slate-800 hover:bg-slate-900 text-white px-5 py-3 rounded-lg font-medium shadow-md transition flex items-center justify-center gap-2 flex-grow md:flex-grow-0 opacity-50 cursor-not-allowed" disabled>
-                    <i class="fas fa-camera"></i> <span class="hidden sm:inline">Simpan JPG</span>
-                </button>
+
+                <!-- Action Buttons & Contact Info -->
+                <div class="flex items-center gap-2">
+                    <a href="mailto:xcydes@gmail.com?subject=Laporan%20Kesalahan%20Data%20Matakuliah%20-%20Simulasi%20KRS" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-3 py-2 rounded-xl font-semibold text-xs transition flex items-center gap-1.5 shrink-0" title="Laporkan jika ada kesalahan informasi matakuliah">
+                        <i class="fas fa-exclamation-circle text-amber-600 text-xs"></i>
+                        <span class="hidden sm:inline text-[11px]">Lapor Data Salah</span>
+                    </a>
+
+                    <button onclick="clearAllCourses()" id="btn-reset" class="bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 px-3 py-2 rounded-xl font-semibold text-xs transition border border-slate-200 hover:border-red-200 flex items-center gap-1.5 opacity-50 cursor-not-allowed" disabled title="Kosongkan Semua Jadwal">
+                        <i class="fas fa-trash-alt text-xs"></i>
+                        <span class="hidden sm:inline text-[11px]">Reset</span>
+                    </button>
+                    
+                    <button onclick="exportJadwal()" id="btn-export" class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl font-semibold text-xs shadow-md transition flex items-center gap-1.5 opacity-50 cursor-not-allowed" disabled>
+                        <i class="fas fa-download text-xs"></i>
+                        <span class="text-[11px]">Simpan JPG</span>
+                    </button>
+                </div>
             </div>
         </header>
 
-        <div class="flex-grow flex flex-col lg:flex-row gap-6 min-h-0">
+        <!-- Main Content Area -->
+        <div class="flex-grow flex flex-col lg:flex-row gap-3 min-h-0 overflow-hidden">
             
             <!-- Panel Kiri: Daftar Mata Kuliah -->
-            <div class="w-full lg:w-1/3 flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden shrink-0">
-                <div class="p-4 border-b border-slate-100 bg-slate-50 flex flex-col gap-3">
+            <div class="w-full lg:w-80 xl:w-96 flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden shrink-0 max-h-[45vh] lg:max-h-none">
+                <div class="p-3 border-b border-slate-100 bg-slate-50/70 flex flex-col gap-2">
                     
-                    <!-- Dropdown Semester -->
+                    <!-- Filter Semester -->
                     <div>
-                        <label for="semester-select" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Filter Semester</label>
-                        <select id="semester-select" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm font-medium text-slate-700 shadow-sm transition-all appearance-none cursor-pointer">
-                            <option value="3" selected>Semester 3</option>
-                            <option value="5">Semester 5 (Menyusul)</option>
-                            <option value="7">Semester 7 (Menyusul)</option>
-                            <option value="8">Semester 8 (Menyusul)</option>
-                            <option value="all">Semua Semester</option>
-                        </select>
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="semester-select" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Filter Semester</label>
+                            <span class="text-[10px] text-slate-400 font-medium" id="course-count-badge">0 matakuliah</span>
+                        </div>
+                        <div class="relative">
+                            <select id="semester-select" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-xs font-semibold text-slate-700 shadow-sm transition-all appearance-none cursor-pointer pr-7">
+                                <option value="all">Semua Semester</option>
+                                <option value="1">Semester 1</option>
+                                <option value="3" selected>Semester 3</option>
+                                <option value="5">Semester 5</option>
+                                <option value="7">Semester 7</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-2.5 top-2.5 text-xs text-slate-400 pointer-events-none"></i>
+                        </div>
                     </div>
 
-                    <!-- Pencarian -->
+                    <!-- Input Pencarian -->
                     <div class="relative">
-                        <i class="fas fa-search absolute left-3 top-2.5 text-slate-400"></i>
-                        <input type="text" id="search-input" placeholder="Cari mata kuliah, dosen..." 
-                            class="w-full pl-9 pr-4 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all shadow-sm">
+                        <i class="fas fa-search absolute left-2.5 top-2 text-xs text-slate-400"></i>
+                        <input type="text" id="search-input" placeholder="Cari nama matakuliah, kode, dosen..." 
+                            class="w-full pl-7 pr-7 py-1.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-xs transition-all shadow-sm placeholder:text-slate-400">
+                        <button id="btn-clear-search" onclick="clearSearch()" class="hidden absolute right-2 top-1.5 text-slate-400 hover:text-slate-600 text-xs w-4 h-4 rounded-full flex items-center justify-center">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                 </div>
                 
-                <div class="flex-grow overflow-y-auto p-2 custom-scroll bg-slate-50/30" id="course-list">
-                    <!-- List Mata Kuliah dirender JS -->
+                <!-- Container Scrollable List -->
+                <div class="flex-grow overflow-y-auto p-2.5 custom-scroll bg-slate-50/30 space-y-2" id="course-list">
+                    <!-- List Mata Kuliah dirender via JavaScript -->
                 </div>
             </div>
 
-            <!-- Panel Kanan: Tabel Jadwal -->
-            <div class="w-full lg:w-2/3 flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative" id="capture-area">
+            <!-- Panel Kanan: Tabel Kanban Jadwal -->
+            <div class="w-full lg:flex-grow flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden relative min-h-0" id="capture-area">
                 
-                <!-- Header Export (Sembunyi) -->
-                <div id="export-header" class="hidden p-6 text-center border-b border-slate-200 bg-white">
-                    <h2 class="text-2xl font-black text-slate-800 uppercase tracking-wide">Jadwal Perkuliahan</h2>
-                    <p class="text-slate-500 mt-1 font-medium" id="export-time"></p>
+                <!-- Header khusus Export Gambar (Tersembunyi di UI normal) -->
+                <div id="export-header" class="hidden p-4 text-center border-b border-slate-200 bg-white">
+                    <div class="inline-flex items-center gap-2 text-blue-600 font-extrabold text-xs uppercase tracking-wider mb-0.5">
+                        <i class="fas fa-graduation-cap"></i> Simulasi KRS Mahasiswa
+                    </div>
+                    <h2 class="text-xl font-black text-slate-900 tracking-tight">Jadwal Perkuliahan Terpilih</h2>
+                    <p class="text-[11px] text-slate-500 font-medium" id="export-time"></p>
                 </div>
 
-                <div class="flex-grow overflow-auto p-4 md:p-6 custom-scroll bg-slate-50/50">
-                    <h2 class="text-lg font-bold text-slate-800 mb-4 border-b border-slate-200 pb-3 flex items-center justify-between hidden" id="title-jadwal">
-                        <span>Jadwal Terpilih</span>
-                    </h2>
+                <!-- Canvas Area Utama -->
+                <div class="flex-grow overflow-auto p-3 md:p-4 custom-scroll bg-slate-50/40 flex flex-col min-h-0">
+                    <div class="flex justify-between items-center mb-2.5 pb-2 border-b border-slate-200/60 shrink-0" id="title-jadwal">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                            <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Matrik Jadwal Mingguan</h2>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-500" id="selected-summary-text">0 Kelas terpilih</span>
+                    </div>
                     
-                    <div id="selected-courses-container" class="w-full">
+                    <div id="selected-courses-container" class="w-full flex-grow flex flex-col min-h-0">
                         <!-- Tabel Kanban dirender JS -->
                     </div>
                 </div>
 
-                <!-- Footer Export (Sembunyi) -->
-                <div id="export-footer" class="hidden p-5 border-t border-slate-200 bg-slate-50">
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="font-semibold text-slate-500">Dicetak melalui Simulasi KRS</span>
-                        <span class="font-bold text-slate-800 bg-white px-3 py-1 rounded border shadow-sm">Total: <span id="export-total-sks" class="text-blue-600">0</span> SKS</span>
+                <!-- Footer khusus Export Gambar (Tersembunyi di UI normal) -->
+                <div id="export-footer" class="hidden p-3 border-t border-slate-200 bg-slate-50">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-semibold text-slate-500">Dicetak via Simulasi KRS Mahasiswa</span>
+                        <span class="font-bold text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm">Total: <span id="export-total-sks" class="text-blue-600">0</span> SKS</span>
                     </div>
                 </div>
             </div>
@@ -122,60 +179,103 @@
     </div>
 
     <script>
-        // --- DATA MATA KULIAH ---
-        
-        // Data Semester 3 (Dari Gambar)
+        // --- DATA MATA KULIAH (DATABASE) ---
+
+        // Data Semester 1 (Transkripsi dari Tabel Gambar)
+        const db_semester_1 = [
+            // Bahasa Inggris
+            { id: 's1_1', semester: 1, kode: 'IFE101A', kelas: 'A', nama: 'Bahasa Inggris', sks: 2, dosen: 'Dr. AISYAH RIRIN PERWIKASIH UTARI, S.S., M.Pd', hari: 'Kamis', mulai: '11:20', selesai: '12:59', ruang: 'J.3.11' },
+            { id: 's1_2', semester: 1, kode: 'IFE101B', kelas: 'B', nama: 'Bahasa Inggris', sks: 2, dosen: 'Dr. AISYAH RIRIN PERWIKASIH UTARI, S.S., M.Pd', hari: 'Kamis', mulai: '08:00', selesai: '09:39', ruang: 'J.4.10' },
+            { id: 's1_3', semester: 1, kode: 'IFE101C', kelas: 'C', nama: 'Bahasa Inggris', sks: 2, dosen: 'NOVITA NARULIA SARI, S.S., M.Pd.', hari: 'Selasa', mulai: '13:00', selesai: '14:39', ruang: 'J.3.01' },
+            { id: 's1_4', semester: 1, kode: 'IFE101D', kelas: 'D', nama: 'Bahasa Inggris', sks: 2, dosen: 'NOVITA NARULIA SARI, S.S., M.Pd.', hari: 'Kamis', mulai: '09:40', selesai: '11:19', ruang: 'J.4.10' },
+
+            // Pengantar Teknik Informatika
+            { id: 's1_5', semester: 1, kode: 'IFE103A', kelas: 'A', nama: 'Pengantar Teknik Informatika', sks: 2, dosen: 'RIZKYSARI MEIMAHARANI, S.Kom, M.Kom', hari: 'Jumat', mulai: '08:00', selesai: '09:39', ruang: 'J.4.04' },
+            { id: 's1_6', semester: 1, kode: 'IFE103B', kelas: 'B', nama: 'Pengantar Teknik Informatika', sks: 2, dosen: 'RIZKYSARI MEIMAHARANI, S.Kom, M.Kom', hari: 'Senin', mulai: '13:00', selesai: '14:39', ruang: 'J.4.11' },
+            { id: 's1_7', semester: 1, kode: 'IFE103C', kelas: 'C', nama: 'Pengantar Teknik Informatika', sks: 2, dosen: 'RIZKYSARI MEIMAHARANI, S.Kom, M.Kom', hari: 'Rabu', mulai: '08:00', selesai: '09:39', ruang: 'J.4.04' },
+            { id: 's1_8', semester: 1, kode: 'IFE103D', kelas: 'D', nama: 'Pengantar Teknik Informatika', sks: 2, dosen: 'RIZKYSARI MEIMAHARANI, S.Kom, M.Kom', hari: 'Jumat', mulai: '09:40', selesai: '11:19', ruang: 'J.4.04' },
+
+            // Logika Matematika
+            { id: 's1_9', semester: 1, kode: 'IFE105A', kelas: 'A', nama: 'Logika Matematika', sks: 3, dosen: 'TUTIK KHOTIMAH, M.Kom', hari: 'Jumat', mulai: '13:00', selesai: '15:29', ruang: 'J.4.06' },
+            { id: 's1_10', semester: 1, kode: 'IFE105B', kelas: 'B', nama: 'Logika Matematika', sks: 3, dosen: 'TUTIK KHOTIMAH, M.Kom', hari: 'Rabu', mulai: '13:00', selesai: '15:29', ruang: 'J.3.01' },
+            { id: 's1_11', semester: 1, kode: 'IFE105C', kelas: 'C', nama: 'Logika Matematika', sks: 3, dosen: 'TUTIK KHOTIMAH, M.Kom', hari: 'Kamis', mulai: '11:20', selesai: '13:49', ruang: 'J.4.10' },
+            { id: 's1_12', semester: 1, kode: 'IFE105D', kelas: 'D', nama: 'Logika Matematika', sks: 3, dosen: 'TUTIK KHOTIMAH, M.Kom', hari: 'Selasa', mulai: '13:00', selesai: '15:29', ruang: 'J.4.10' },
+
+            // Dasar Pemrograman
+            { id: 's1_13', semester: 1, kode: 'IFE107A', kelas: 'A', nama: 'Dasar Pemrograman', sks: 2, dosen: 'ALIF CATUR MURTI, S.KOM.M.KOM', hari: 'Kamis', mulai: '08:00', selesai: '09:39', ruang: 'J.4.04' },
+            { id: 's1_14', semester: 1, kode: 'IFE107B', kelas: 'B', nama: 'Dasar Pemrograman', sks: 2, dosen: 'ALIF CATUR MURTI, S.KOM.M.KOM', hari: 'Rabu', mulai: '13:00', selesai: '14:39', ruang: 'J.3.11' },
+            { id: 's1_15', semester: 1, kode: 'IFE107C', kelas: 'C', nama: 'Dasar Pemrograman', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Senin', mulai: '08:00', selesai: '09:39', ruang: 'J.4.06' },
+            { id: 's1_16', semester: 1, kode: 'IFE107D', kelas: 'D', nama: 'Dasar Pemrograman', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Senin', mulai: '09:40', selesai: '11:19', ruang: 'J.4.06' },
+
+            // Praktikum Dasar Pemrograman
+            { id: 's1_17', semester: 1, kode: 'IFE109A', kelas: 'A', nama: 'Praktikum Dasar Pemrograman', sks: 2, dosen: 'ALIF CATUR MURTI, S.KOM.M.KOM', hari: 'Rabu', mulai: '08:00', selesai: '10:29', ruang: 'I.3.04' },
+            { id: 's1_18', semester: 1, kode: 'IFE109B', kelas: 'B', nama: 'Praktikum Dasar Pemrograman', sks: 2, dosen: 'ALIF CATUR MURTI, S.KOM.M.KOM', hari: 'Senin', mulai: '10:30', selesai: '12:59', ruang: 'I.3.04' },
+            { id: 's1_19', semester: 1, kode: 'IFE109C', kelas: 'C', nama: 'Praktikum Dasar Pemrograman', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Selasa', mulai: '08:00', selesai: '10:29', ruang: 'I.3.04' },
+            { id: 's1_20', semester: 1, kode: 'IFE109D', kelas: 'D', nama: 'Praktikum Dasar Pemrograman', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Selasa', mulai: '10:30', selesai: '12:59', ruang: 'I.3.04' },
+
+            // Sistem Digital
+            { id: 's1_21', semester: 1, kode: 'IFE111A', kelas: 'A', nama: 'Sistem Digital', sks: 3, dosen: 'ADITYA AKBAR RIADI, S.Kom., M.Kom.', hari: 'Selasa', mulai: '08:00', selesai: '10:29', ruang: 'J.4.03' },
+            { id: 's1_22', semester: 1, kode: 'IFE111B', kelas: 'B', nama: 'Sistem Digital', sks: 3, dosen: 'ADITYA AKBAR RIADI, S.Kom., M.Kom.', hari: 'Senin', mulai: '08:00', selesai: '10:29', ruang: 'J.3.01' },
+            { id: 's1_23', semester: 1, kode: 'IFE111C', kelas: 'C', nama: 'Sistem Digital', sks: 3, dosen: 'ADITYA AKBAR RIADI, S.Kom., M.Kom.', hari: 'Senin', mulai: '10:30', selesai: '12:59', ruang: 'J.3.01' },
+            { id: 's1_24', semester: 1, kode: 'IFE111D', kelas: 'D', nama: 'Sistem Digital', sks: 3, dosen: 'ADITYA AKBAR RIADI, S.Kom., M.Kom.', hari: 'Rabu', mulai: '09:40', selesai: '12:09', ruang: 'J.4.06' },
+
+            // Kalkulus
+            { id: 's1_25', semester: 1, kode: 'IFE113A', kelas: 'A', nama: 'Kalkulus', sks: 3, dosen: 'CURIE HABIBA, S.Si., M.Cs.', hari: 'Rabu', mulai: '12:10', selesai: '14:39', ruang: 'J.4.06' },
+            { id: 's1_26', semester: 1, kode: 'IFE113B', kelas: 'B', nama: 'Kalkulus', sks: 3, dosen: 'CURIE HABIBA, S.Si., M.Cs.', hari: 'Jumat', mulai: '08:00', selesai: '10:29', ruang: 'J.3.03' },
+            { id: 's1_27', semester: 1, kode: 'IFE113C', kelas: 'C', nama: 'Kalkulus', sks: 3, dosen: 'ALIF CATUR MURTI, S.KOM.M.KOM', hari: 'Rabu', mulai: '10:30', selesai: '12:59', ruang: 'J.3.11' },
+            { id: 's1_28', semester: 1, kode: 'IFE113D', kelas: 'D', nama: 'Kalkulus', sks: 3, dosen: 'ALIF CATUR MURTI, S.KOM.M.KOM', hari: 'Senin', mulai: '13:00', selesai: '15:29', ruang: 'J.3.01' },
+
+            // Arsitektur dan Organisasi Komputer
+            { id: 's1_29', semester: 1, kode: 'IFE115A', kelas: 'A', nama: 'Arsitektur dan Organisasi Komputer', sks: 3, dosen: 'ALVIN RAINALDY HAKIM, S.Kom., M.Kom.', hari: 'Jumat', mulai: '13:00', selesai: '15:29', ruang: 'J.4.04' },
+            { id: 's1_30', semester: 1, kode: 'IFE115B', kelas: 'B', nama: 'Arsitektur dan Organisasi Komputer', sks: 3, dosen: 'ALVIN RAINALDY HAKIM, S.Kom., M.Kom.', hari: 'Selasa', mulai: '13:00', selesai: '15:29', ruang: 'J.4.11' },
+            { id: 's1_31', semester: 1, kode: 'IFE115C', kelas: 'C', nama: 'Arsitektur dan Organisasi Komputer', sks: 3, dosen: 'ALVIN RAINALDY HAKIM, S.Kom., M.Kom.', hari: 'Selasa', mulai: '10:30', selesai: '12:59', ruang: 'J.4.11' },
+            { id: 's1_32', semester: 1, kode: 'IFE115D', kelas: 'D', nama: 'Arsitektur dan Organisasi Komputer', sks: 3, dosen: 'ALVIN RAINALDY HAKIM, S.Kom., M.Kom.', hari: 'Rabu', mulai: '13:00', selesai: '15:29', ruang: 'J.3.03' }
+        ];
+
+        // Data Semester 3
         const db_semester_3 = [
-            // Statistik dan Probabilitas
             { id: 's3_1', semester: 3, kode: 'IFE201A', kelas: 'A', nama: 'Statistik dan Probabilitas', sks: 3, dosen: 'ESTI WIJAYANTI, M.Kom', hari: 'Selasa', mulai: '10:30', selesai: '12:59', ruang: 'J.4.10' },
             { id: 's3_2', semester: 3, kode: 'IFE201B', kelas: 'B', nama: 'Statistik dan Probabilitas', sks: 3, dosen: 'ESTI WIJAYANTI, M.Kom', hari: 'Selasa', mulai: '08:00', selesai: '10:29', ruang: 'J.4.10' },
             { id: 's3_3', semester: 3, kode: 'IFE201C', kelas: 'C', nama: 'Statistik dan Probabilitas', sks: 3, dosen: 'ESTI WIJAYANTI, M.Kom', hari: 'Kamis', mulai: '08:00', selesai: '10:29', ruang: 'J.3.11' },
             { id: 's3_4', semester: 3, kode: 'IFE201D', kelas: 'D', nama: 'Statistik dan Probabilitas', sks: 3, dosen: 'ESTI WIJAYANTI, M.Kom', hari: 'Senin', mulai: '08:00', selesai: '10:29', ruang: 'J.4.11' },
             { id: 's3_5', semester: 3, kode: 'IFE201E', kelas: 'E', nama: 'Statistik dan Probabilitas', sks: 3, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Jumat', mulai: '13:00', selesai: '15:29', ruang: 'J.4.11' },
             
-            // Rekayasa Perangkat Lunak
             { id: 's3_6', semester: 3, kode: 'IFE203A', kelas: 'A', nama: 'Rekayasa Perangkat Lunak', sks: 3, dosen: 'RATIH NINDYASARI, S.Kom., M.Kom.', hari: 'Senin', mulai: '12:10', selesai: '14:39', ruang: 'J.4.03' },
             { id: 's3_7', semester: 3, kode: 'IFE203B', kelas: 'B', nama: 'Rekayasa Perangkat Lunak', sks: 3, dosen: 'RATIH NINDYASARI, S.Kom., M.Kom.', hari: 'Jumat', mulai: '13:00', selesai: '15:29', ruang: 'J.3.01' },
             { id: 's3_8', semester: 3, kode: 'IFE203C', kelas: 'C', nama: 'Rekayasa Perangkat Lunak', sks: 3, dosen: 'RATIH NINDYASARI, S.Kom., M.Kom.', hari: 'Rabu', mulai: '13:00', selesai: '15:29', ruang: 'J.4.10' },
             { id: 's3_9', semester: 3, kode: 'IFE203D', kelas: 'D', nama: 'Rekayasa Perangkat Lunak', sks: 3, dosen: 'RATIH NINDYASARI, S.Kom., M.Kom.', hari: 'Selasa', mulai: '12:10', selesai: '14:39', ruang: 'J.4.06' },
             { id: 's3_10', semester: 3, kode: 'IFE203E', kelas: 'E', nama: 'Rekayasa Perangkat Lunak', sks: 3, dosen: 'RATIH NINDYASARI, S.Kom., M.Kom.', hari: 'Jumat', mulai: '08:50', selesai: '11:19', ruang: 'J.3.01' },
             
-            // Pemrograman Berorientasi Objek
             { id: 's3_11', semester: 3, kode: 'IFE205A', kelas: 'A', nama: 'Pemrograman Berorientasi Objek', sks: 3, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Rabu', mulai: '11:20', selesai: '12:59', ruang: 'J.4.11' },
             { id: 's3_12', semester: 3, kode: 'IFE205B', kelas: 'B', nama: 'Pemrograman Berorientasi Objek', sks: 3, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Rabu', mulai: '08:00', selesai: '09:39', ruang: 'J.4.11' },
             { id: 's3_13', semester: 3, kode: 'IFE205C', kelas: 'C', nama: 'Pemrograman Berorientasi Objek', sks: 3, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Rabu', mulai: '09:40', selesai: '11:19', ruang: 'J.4.11' },
             { id: 's3_14', semester: 3, kode: 'IFE205D', kelas: 'D', nama: 'Pemrograman Berorientasi Objek', sks: 3, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Selasa', mulai: '10:30', selesai: '12:09', ruang: 'J.4.06' },
             { id: 's3_15', semester: 3, kode: 'IFE205E', kelas: 'E', nama: 'Pemrograman Berorientasi Objek', sks: 3, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Rabu', mulai: '11:20', selesai: '12:59', ruang: 'J.4.10' },
 
-            // Praktikum Pemrograman Berorientasi Objek
             { id: 's3_16', semester: 3, kode: 'IFE207A', kelas: 'A', nama: 'Praktikum Pemrograman Berorientasi Objek', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Selasa', mulai: '08:00', selesai: '10:29', ruang: 'I.3.06' },
             { id: 's3_17', semester: 3, kode: 'IFE207B', kelas: 'B', nama: 'Praktikum Pemrograman Berorientasi Objek', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Selasa', mulai: '10:30', selesai: '12:59', ruang: 'I.3.06' },
             { id: 's3_18', semester: 3, kode: 'IFE207C', kelas: 'C', nama: 'Praktikum Pemrograman Berorientasi Objek', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Selasa', mulai: '13:00', selesai: '15:29', ruang: 'I.3.06' },
             { id: 's3_19', semester: 3, kode: 'IFE207D', kelas: 'D', nama: 'Praktikum Pemrograman Berorientasi Objek', sks: 2, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Kamis', mulai: '08:00', selesai: '10:29', ruang: 'I.3.04' },
             { id: 's3_20', semester: 3, kode: 'IFE207E', kelas: 'E', nama: 'Praktikum Pemrograman Berorientasi Objek', sks: 2, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Kamis', mulai: '10:30', selesai: '12:59', ruang: 'I.3.04' },
 
-            // Basis Data
             { id: 's3_21', semester: 3, kode: 'IFE209A', kelas: 'A', nama: 'Basis Data', sks: 2, dosen: 'Dr. ANASTASYA LATUBESSY, S.Kom, M.Cs', hari: 'Kamis', mulai: '08:00', selesai: '09:39', ruang: 'J.3.01' },
             { id: 's3_22', semester: 3, kode: 'IFE209B', kelas: 'B', nama: 'Basis Data', sks: 2, dosen: 'Dr. ANASTASYA LATUBESSY, S.Kom, M.Cs', hari: 'Senin', mulai: '08:00', selesai: '09:39', ruang: 'J.4.03' },
             { id: 's3_23', semester: 3, kode: 'IFE209C', kelas: 'C', nama: 'Basis Data', sks: 2, dosen: 'AHMAD JAZULI, S.Kom., M.Kom', hari: 'Selasa', mulai: '09:40', selesai: '11:19', ruang: 'J.4.04' },
             { id: 's3_24', semester: 3, kode: 'IFE209D', kelas: 'D', nama: 'Basis Data', sks: 2, dosen: 'AHMAD JAZULI, S.Kom., M.Kom', hari: 'Rabu', mulai: '08:00', selesai: '09:39', ruang: 'J.4.06' },
             { id: 's3_25', semester: 3, kode: 'IFE209E', kelas: 'E', nama: 'Basis Data', sks: 2, dosen: 'AHMAD JAZULI, S.Kom., M.Kom', hari: 'Selasa', mulai: '08:00', selesai: '09:39', ruang: 'J.4.04' },
 
-            // Praktikum Basis Data
             { id: 's3_26', semester: 3, kode: 'IFE211A', kelas: 'A', nama: 'Praktikum Basis Data', sks: 2, dosen: 'Dr. ANASTASYA LATUBESSY, S.Kom, M.Cs', hari: 'Jumat', mulai: '08:00', selesai: '10:29', ruang: 'I.3.06' },
             { id: 's3_27', semester: 3, kode: 'IFE211B', kelas: 'B', nama: 'Praktikum Basis Data', sks: 2, dosen: 'Dr. ANASTASYA LATUBESSY, S.Kom, M.Cs', hari: 'Rabu', mulai: '10:30', selesai: '12:59', ruang: 'I.3.04' },
             { id: 's3_28', semester: 3, kode: 'IFE211C', kelas: 'C', nama: 'Praktikum Basis Data', sks: 2, dosen: 'AHMAD JAZULI, S.Kom., M.Kom', hari: 'Senin', mulai: '08:00', selesai: '10:29', ruang: 'I.3.04' },
             { id: 's3_29', semester: 3, kode: 'IFE211D', kelas: 'D', nama: 'Praktikum Basis Data', sks: 2, dosen: 'AHMAD JAZULI, S.Kom., M.Kom', hari: 'Kamis', mulai: '10:30', selesai: '12:59', ruang: 'I.3.05' },
             { id: 's3_30', semester: 3, kode: 'IFE211E', kelas: 'E', nama: 'Praktikum Basis Data', sks: 2, dosen: 'AHMAD JAZULI, S.Kom., M.Kom', hari: 'Kamis', mulai: '08:00', selesai: '10:29', ruang: 'I.3.05' },
 
-            // Jaringan Komputer
             { id: 's3_31', semester: 3, kode: 'IFE213A', kelas: 'A', nama: 'Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Kamis', mulai: '08:00', selesai: '09:39', ruang: 'J.4.03' },
             { id: 's3_32', semester: 3, kode: 'IFE213B', kelas: 'B', nama: 'Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Kamis', mulai: '09:40', selesai: '11:19', ruang: 'J.4.03' },
             { id: 's3_33', semester: 3, kode: 'IFE213C', kelas: 'C', nama: 'Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Senin', mulai: '13:00', selesai: '14:39', ruang: 'J.4.06' },
             { id: 's3_34', semester: 3, kode: 'IFE213D', kelas: 'D', nama: 'Jaringan Komputer', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Kamis', mulai: '09:40', selesai: '11:19', ruang: 'J.4.06' },
             { id: 's3_35', semester: 3, kode: 'IFE213E', kelas: 'E', nama: 'Jaringan Komputer', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Kamis', mulai: '08:00', selesai: '09:39', ruang: 'J.4.06' },
 
-            // Praktikum Jaringan Komputer
             { id: 's3_36', semester: 3, kode: 'IFE215A', kelas: 'A', nama: 'Praktikum Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Senin', mulai: '08:00', selesai: '10:29', ruang: 'I.3.03' },
             { id: 's3_37', semester: 3, kode: 'IFE215B', kelas: 'B', nama: 'Praktikum Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Senin', mulai: '10:30', selesai: '12:59', ruang: 'I.3.03' },
             { id: 's3_38', semester: 3, kode: 'IFE215C', kelas: 'C', nama: 'Praktikum Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Jumat', mulai: '08:00', selesai: '10:29', ruang: 'I.3.04' },
@@ -183,59 +283,92 @@
             { id: 's3_40', semester: 3, kode: 'IFE215E', kelas: 'E', nama: 'Praktikum Jaringan Komputer', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Rabu', mulai: '08:00', selesai: '10:29', ruang: 'I.3.03' }
         ];
 
-        // Placeholder untuk semester lain (Kosong untuk saat ini)
-        const db_semester_5 = [];
-        const db_semester_7 = [];
-        const db_semester_8 = [];
+        // Data Semester 5
+        const db_semester_5 = [
+            { id: 's5_1', semester: 5, kode: 'MKW301A', kelas: 'A', nama: 'Bahasa Indonesia', sks: 2, dosen: 'Dr. LUTHFA NUGRAHENI, S.Pd, M.Pd.', hari: 'Senin', mulai: '10:30', selesai: '12:09', ruang: 'J.4.10' },
+            { id: 's5_2', semester: 5, kode: 'MKW301B', kelas: 'B', nama: 'Bahasa Indonesia', sks: 2, dosen: 'Dr. LUTHFA NUGRAHENI, S.Pd, M.Pd.', hari: 'Senin', mulai: '13:50', selesai: '15:29', ruang: 'J.4.10' },
+            { id: 's5_3', semester: 5, kode: 'MKW301C', kelas: 'C', nama: 'Bahasa Indonesia', sks: 2, dosen: 'Dr. LUTHFA NUGRAHENI, S.Pd, M.Pd.', hari: 'Senin', mulai: '12:10', selesai: '13:49', ruang: 'J.4.10' },
+            { id: 's5_4', semester: 5, kode: 'MKW301D', kelas: 'D', nama: 'Bahasa Indonesia', sks: 2, dosen: 'Dr., Drs. MOHAMMAD KANZUNNUDIN, MPd', hari: 'Rabu', mulai: '08:00', selesai: '09:39', ruang: 'J.4.10' },
+            { id: 's5_5', semester: 5, kode: 'MKW301E', kelas: 'E', nama: 'Bahasa Indonesia', sks: 2, dosen: 'Dr., Drs. MOHAMMAD KANZUNNUDIN, MPd', hari: 'Jumat', mulai: '09:40', selesai: '11:19', ruang: 'J.4.10' },
+            { id: 's5_6', semester: 5, kode: 'MKW301F', kelas: 'F', nama: 'Bahasa Indonesia', sks: 2, dosen: 'Dr., Drs. MOHAMMAD KANZUNNUDIN, MPd', hari: 'Jumat', mulai: '08:00', selesai: '09:39', ruang: 'J.4.10' }
+        ];
 
-        // Gabungkan semua data
-        const allCourses = [...db_semester_3, ...db_semester_5, ...db_semester_7, ...db_semester_8];
+        // Data Semester 7
+        const db_semester_7 = [
+            { id: 's7_1', semester: 7, kode: 'FTI401', kelas: '-', nama: 'Technopreneurship', sks: 2, dosen: 'ARIEF SUSANTO, ST.M.Kom', hari: 'Senin', mulai: '11:20', selesai: '12:59', ruang: 'J.4.06' },
+            { id: 's7_2', semester: 7, kode: 'FTI403A', kelas: 'A', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Senin', mulai: '08:00', selesai: '10:29', ruang: 'J.4.04' },
+            { id: 's7_3', semester: 7, kode: 'FTI403B', kelas: 'B', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Senin', mulai: '10:30', selesai: '12:59', ruang: 'J.4.04' },
+            { id: 's7_4', semester: 7, kode: 'FTI403C', kelas: 'C', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Jumat', mulai: '08:00', selesai: '10:29', ruang: 'J.4.11' },
+            { id: 's7_5', semester: 7, kode: 'FTI403D', kelas: 'D', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Rabu', mulai: '12:10', selesai: '14:39', ruang: 'J.4.04' },
+            { id: 's7_6', semester: 7, kode: 'FTI403E', kelas: 'E', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Senin', mulai: '13:00', selesai: '15:29', ruang: 'J.4.04' }
+        ];
 
-        // --- STATE APLIKASI ---
+        // Combine all semester data
+        const allCourses = [...db_semester_1, ...db_semester_3, ...db_semester_5, ...db_semester_7];
+
+        // --- APPLICATION STATE ---
         let selectedCourses = [];
         const MAX_SKS = 24;
         const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 
-        // --- INISIALISASI ---
         document.addEventListener('DOMContentLoaded', () => {
             renderCourseList();
             
-            // Event Listener Pencarian
-            document.getElementById('search-input').addEventListener('input', () => {
+            // Search Input Event
+            const searchInput = document.getElementById('search-input');
+            const clearBtn = document.getElementById('btn-clear-search');
+            
+            searchInput.addEventListener('input', () => {
+                if (searchInput.value.trim() !== '') {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
                 renderCourseList();
             });
 
-            // Event Listener Filter Semester
+            // Semester Filter Event
             document.getElementById('semester-select').addEventListener('change', () => {
-                document.getElementById('search-input').value = ''; // Reset pencarian saat ganti semester
                 renderCourseList();
             });
         });
 
-        // --- STREAMING_CHUNK:Fungsi Render Daftar (Kiri) ---
+        function clearSearch() {
+            const searchInput = document.getElementById('search-input');
+            searchInput.value = '';
+            document.getElementById('btn-clear-search').classList.add('hidden');
+            renderCourseList();
+            searchInput.focus();
+        }
+
         function renderCourseList() {
             const container = document.getElementById('course-list');
-            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
             const semesterFilter = document.getElementById('semester-select').value;
             
             container.innerHTML = '';
             
-            // Filter Berdasarkan Semester & Pencarian
             const filtered = allCourses.filter(c => {
                 const matchSemester = semesterFilter === 'all' || c.semester.toString() === semesterFilter;
                 const matchSearch = 
                     c.nama.toLowerCase().includes(searchQuery) || 
                     c.kode.toLowerCase().includes(searchQuery) || 
-                    c.dosen.toLowerCase().includes(searchQuery);
+                    c.dosen.toLowerCase().includes(searchQuery) ||
+                    c.ruang.toLowerCase().includes(searchQuery);
                 return matchSemester && matchSearch;
             });
 
+            // Update badge count
+            document.getElementById('course-count-badge').textContent = `${filtered.length} matakuliah`;
+
             if (filtered.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center p-8 mt-10">
-                        <i class="fas fa-folder-open text-4xl text-slate-300 mb-3"></i>
-                        <p class="text-slate-500 text-sm font-medium">Tidak ada data untuk filter ini.</p>
-                        ${semesterFilter !== '3' && semesterFilter !== 'all' ? '<p class="text-xs text-slate-400 mt-1">Data menyusul.</p>' : ''}
+                    <div class="text-center p-8 my-auto">
+                        <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-search text-lg"></i>
+                        </div>
+                        <p class="text-slate-600 text-xs font-semibold">Tidak ditemukan matakuliah</p>
+                        <p class="text-[11px] text-slate-400 mt-1">Coba kata kunci lain atau ubah filter semester.</p>
                     </div>`;
                 return;
             }
@@ -244,36 +377,48 @@
                 const isSelected = selectedCourses.some(sc => sc.id === course.id);
                 
                 const card = document.createElement('div');
-                card.className = `p-3.5 mb-3 rounded-xl border transition-all duration-200 ${isSelected ? 'bg-slate-100 border-slate-200 opacity-60 grayscale-[30%]' : 'bg-white border-slate-200 hover:border-blue-400 hover:shadow-md cursor-pointer'}`;
+                card.className = `p-2.5 rounded-xl border transition-all duration-200 relative group ${
+                    isSelected 
+                        ? 'bg-slate-100/90 border-slate-300 opacity-65' 
+                        : 'bg-white border-slate-200/90 hover:border-blue-400 hover:shadow-md cursor-pointer'
+                }`;
                 
                 card.innerHTML = `
-                    <div class="flex justify-between items-start gap-3">
-                        <div class="flex-grow">
-                            <h4 class="font-bold text-slate-800 text-sm leading-tight mb-1.5">${course.nama}</h4>
-                            <div class="flex flex-wrap gap-1.5 mb-2">
-                                <span class="bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-bold px-1.5 py-0.5 rounded">${course.kode}</span>
-                                <span class="bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-semibold px-1.5 py-0.5 rounded">Kelas ${course.kelas}</span>
-                                <span class="bg-green-50 text-green-700 border border-green-100 text-[10px] font-bold px-1.5 py-0.5 rounded">${course.sks} SKS</span>
+                    <div class="flex justify-between items-start gap-2">
+                        <div class="flex-grow min-w-0">
+                            <!-- Badges -->
+                            <div class="flex flex-wrap items-center gap-1 mb-1">
+                                <span class="bg-blue-50 text-blue-700 border border-blue-100 text-[9px] font-bold px-1.5 py-0.2 rounded">Sem ${course.semester}</span>
+                                <span class="bg-slate-100 text-slate-700 border border-slate-200 text-[9px] font-bold px-1.5 py-0.2 rounded">${course.kode}</span>
+                                <span class="bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-extrabold px-1.5 py-0.2 rounded">Kls ${course.kelas}</span>
+                                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-bold px-1.5 py-0.2 rounded">${course.sks} SKS</span>
                             </div>
-                            <div class="text-[11px] text-slate-600 space-y-1">
-                                <div class="flex items-start gap-1.5">
-                                    <i class="fas fa-clock w-3.5 text-center text-blue-400 mt-0.5"></i> 
-                                    <span class="font-medium">${course.hari}, ${course.mulai} - ${course.selesai}</span>
+
+                            <!-- Course Title -->
+                            <h4 class="font-bold text-slate-800 text-xs leading-tight mb-1 truncate" title="${course.nama}">${course.nama}</h4>
+
+                            <!-- Information Grid -->
+                            <div class="text-[10px] text-slate-500 space-y-0.5">
+                                <div class="flex items-center gap-1">
+                                    <i class="fas fa-clock w-3 text-center text-blue-500"></i> 
+                                    <span class="font-medium text-slate-700">${course.hari}, ${course.mulai} - ${course.selesai}</span>
                                 </div>
-                                <div class="flex items-start gap-1.5">
-                                    <i class="fas fa-map-marker-alt w-3.5 text-center text-red-400 mt-0.5"></i> 
-                                    <span>${course.ruang}</span>
+                                <div class="flex items-center gap-1">
+                                    <i class="fas fa-location-dot w-3 text-center text-rose-500"></i> 
+                                    <span>Ruang ${course.ruang}</span>
                                 </div>
-                                <div class="flex items-start gap-1.5">
-                                    <i class="fas fa-user-tie w-3.5 text-center text-slate-400 mt-0.5"></i> 
-                                    <span class="line-clamp-1">${course.dosen}</span>
+                                <div class="flex items-center gap-1">
+                                    <i class="fas fa-user-tie w-3 text-center text-slate-400"></i> 
+                                    <span class="truncate">${course.dosen}</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="shrink-0 mt-1">
+
+                        <!-- Add / Selected Indicator Button -->
+                        <div class="shrink-0 pt-0.5">
                             ${isSelected 
-                                ? `<span class="bg-slate-200 text-slate-500 p-2 rounded-lg text-sm flex items-center justify-center w-8 h-8"><i class="fas fa-check"></i></span>`
-                                : `<button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg text-sm flex items-center justify-center w-8 h-8 transition shadow-sm hover:scale-105 active:scale-95" title="Pilih Jadwal"><i class="fas fa-plus"></i></button>`
+                                ? `<span class="bg-emerald-100 text-emerald-700 text-xs rounded-lg font-bold flex items-center justify-center w-7 h-7" title="Sudah dipilih"><i class="fas fa-check"></i></span>`
+                                : `<button class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center justify-center w-7 h-7 transition-transform active:scale-95 shadow-sm" title="Tambah ke Jadwal"><i class="fas fa-plus"></i></button>`
                             }
                         </div>
                     </div>
@@ -287,9 +432,6 @@
             });
         }
 
-        // --- STREAMING_CHUNK:Logika Bentrok Jadwal Akurat ---
-        
-        // Ubah jam "08:30" menjadi hitungan menit absolut (misal: 8*60 + 30 = 510)
         function timeToMinutes(timeStr) {
             if(!timeStr) return 0;
             const parts = timeStr.trim().replace('.', ':').split(':');
@@ -298,93 +440,123 @@
         }
 
         function addCourse(newCourse) {
-            // 1. Kalkulasi Menit untuk deteksi akurat
             const newStartMins = timeToMinutes(newCourse.mulai);
             const newEndMins = timeToMinutes(newCourse.selesai);
             
             if (newStartMins === 0 || newEndMins === 0) {
-                showToast(`Format waktu ${newCourse.nama} tidak valid.`, 'error');
+                showToast(`Format waktu matakuliah ${newCourse.nama} tidak valid.`, 'error');
                 return;
             }
 
-            // 2. Cek Batas SKS
+            // Check Max SKS Limit
             const total = selectedCourses.reduce((sum, c) => sum + parseInt(c.sks || 0), 0);
             if (total + parseInt(newCourse.sks || 0) > MAX_SKS) {
-                showToast(`<b>Gagal!</b> Maksimal ${MAX_SKS} SKS tercapai.`, 'error');
+                showToast(`<b>Batas SKS Terlampaui!</b> Maksimal total yang diperbolehkan adalah ${MAX_SKS} SKS.`, 'error');
                 return;
             }
 
-            // 3. Cek Bentrok (Murni berbasis waktu overlap)
+            // Collision Detection
             const conflict = selectedCourses.find(c => {
                 if (c.hari !== newCourse.hari) return false;
                 
                 const existingStartMins = timeToMinutes(c.mulai);
                 const existingEndMins = timeToMinutes(c.selesai);
                 
-                // Rumus Overlap: Start A < End B AND Start B < End A
+                // Overlap logic: Start A < End B AND Start B < End A
                 return (newStartMins < existingEndMins) && (existingStartMins < newEndMins);
             });
 
             if (conflict) {
-                showToast(`<b>Bentrok Jadwal!</b><br>${newCourse.nama} beririsan waktu dengan <b>${conflict.nama}</b> pada hari ${conflict.hari}.`, 'error');
+                showToast(`<b>Jadwal Bentrok!</b><br>Matakuliah <b>${newCourse.nama}</b> (Kelas ${newCourse.kelas}) beririsan waktu dengan <b>${conflict.nama}</b> pada hari ${conflict.hari} (${conflict.mulai}-${conflict.selesai}).`, 'error');
                 return;
             }
 
-            // Simpan data menit untuk kemudahan sorting saat dirender
+            // Add course
             const courseToAdd = {...newCourse, _startMins: newStartMins};
             selectedCourses.push(courseToAdd);
             
             updateUI();
-            showToast(`${newCourse.nama} ditambahkan.`, 'success');
+            showToast(`<b>${newCourse.nama}</b> (Kelas ${newCourse.kelas}) berhasil ditambahkan.`, 'success');
         }
 
         function removeCourse(id) {
+            const removed = selectedCourses.find(c => c.id === id);
             selectedCourses = selectedCourses.filter(c => c.id !== id);
             updateUI();
+            if(removed) {
+                showToast(`<b>${removed.nama}</b> dihapus dari jadwal.`, 'info');
+            }
+        }
+
+        function clearAllCourses() {
+            if(selectedCourses.length === 0) return;
+            selectedCourses = [];
+            updateUI();
+            showToast(`Semua pilihan jadwal telah dikosongkan.`, 'info');
         }
 
         function updateUI() {
-            // Update Text SKS
             const total = selectedCourses.reduce((sum, c) => sum + parseInt(c.sks || 0), 0);
+            
+            // Update counters & SKS gauge
             document.getElementById('total-sks').textContent = total;
             document.getElementById('export-total-sks').textContent = total;
             
-            // Toggle Tombol Export & Judul Tabel
+            const pct = Math.min(Math.round((total / MAX_SKS) * 100), 100);
+            const sksBar = document.getElementById('sks-bar');
+            sksBar.style.width = `${pct}%`;
+            document.getElementById('sks-percentage').textContent = `${pct}%`;
+            
+            // Dynamic color shift based on SKS load
+            if (pct > 90) {
+                sksBar.className = "bg-rose-500 h-full rounded-full transition-all duration-300";
+            } else if (pct > 75) {
+                sksBar.className = "bg-amber-500 h-full rounded-full transition-all duration-300";
+            } else {
+                sksBar.className = "bg-blue-600 h-full rounded-full transition-all duration-300";
+            }
+
+            document.getElementById('selected-summary-text').textContent = `${selectedCourses.length} Kelas terpilih`;
+
+            // Toggle Buttons
             const btnExport = document.getElementById('btn-export');
-            const titleJadwal = document.getElementById('title-jadwal');
+            const btnReset = document.getElementById('btn-reset');
             
             if (selectedCourses.length > 0) {
                 btnExport.disabled = false;
                 btnExport.classList.remove('opacity-50', 'cursor-not-allowed');
-                titleJadwal.classList.remove('hidden');
+                btnReset.disabled = false;
+                btnReset.classList.remove('opacity-50', 'cursor-not-allowed');
             } else {
                 btnExport.disabled = true;
                 btnExport.classList.add('opacity-50', 'cursor-not-allowed');
-                titleJadwal.classList.add('hidden');
+                btnReset.disabled = true;
+                btnReset.classList.add('opacity-50', 'cursor-not-allowed');
             }
 
             renderCourseList();
             renderSelectedCourses();
         }
 
-        // --- STREAMING_CHUNK:Render Tabel Jadwal (Kanan) ---
         function renderSelectedCourses() {
             const container = document.getElementById('selected-courses-container');
             container.innerHTML = '';
 
             if (selectedCourses.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center p-8 text-slate-400 text-sm flex flex-col items-center justify-center h-[50vh] min-h-[300px]">
-                        <div class="bg-white p-6 rounded-full shadow-sm border border-slate-100 mb-4">
-                            <i class="fas fa-calendar-times text-5xl text-blue-100"></i>
+                    <div class="flex-grow flex flex-col items-center justify-center p-8 text-center my-auto">
+                        <div class="w-20 h-20 bg-blue-50 text-blue-400 rounded-3xl flex items-center justify-center mb-4 shadow-sm border border-blue-100/80">
+                            <i class="fas fa-calendar-week text-3xl"></i>
                         </div>
-                        <p class="font-medium text-slate-500 text-base">Jadwal masih kosong</p>
-                        <p class="text-xs mt-2 text-slate-400">Pilih mata kuliah dari panel di sebelah kiri.</p>
+                        <h3 class="text-base font-bold text-slate-700">Jadwal Kuliah Belum Terisi</h3>
+                        <p class="text-xs text-slate-400 mt-1 max-w-sm leading-relaxed">
+                            Pilih mata kuliah dari panel disebelah kiri untuk mulai mensimulasikan jadwal perkuliahan Anda.
+                        </p>
                     </div>`;
                 return;
             }
 
-            // Kelompokkan per hari
+            // Grouping by Day
             const grouped = {};
             days.forEach(day => grouped[day] = []);
             
@@ -392,66 +564,71 @@
                 if (grouped[c.hari]) grouped[c.hari].push(c);
             });
 
-            // Struktur Tabel Kolom Hari (Tanpa Jam di Kiri)
+            // Render Grid Layout
             let html = `
-                <div class="w-full overflow-x-auto custom-scroll pb-2">
-                    <div class="min-w-[800px] pb-4"> 
-                        <!-- Header Baris Hari -->
-                        <div class="grid grid-cols-5 gap-4 border-b-2 border-slate-200 pb-3 mb-4">
+                <div class="w-full overflow-x-auto custom-scroll flex-grow">
+                    <div class="min-w-[850px] flex flex-col h-full"> 
+                        <!-- Baris Header Hari -->
+                        <div class="grid grid-cols-5 gap-3 mb-3">
             `;
             
-            // Render Label Hari
             days.forEach(day => {
                 const count = grouped[day].length;
-                const badge = count > 0 ? `<span class="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full ml-1">${count}</span>` : '';
-                html += `<div class="font-bold text-center text-slate-700 bg-white py-3 rounded-xl text-sm uppercase tracking-wider shadow-sm border border-slate-200">${day} ${badge}</div>`;
+                const badge = count > 0 
+                    ? `<span class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-1.5">${count}</span>` 
+                    : '';
+                html += `
+                    <div class="font-extrabold text-center text-slate-700 bg-white py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-sm border border-slate-200/80 flex items-center justify-center">
+                        ${day} ${badge}
+                    </div>`;
             });
             
-            html += `</div><!-- Baris Isi Kartu --><div class="grid grid-cols-5 gap-4">`;
+            html += `</div><!-- Baris Kolom Jadwal --><div class="grid grid-cols-5 gap-3 flex-grow">`;
 
-            // Render Kartu per hari
             days.forEach((day, colIdx) => {
-                // Background kolom hari
-                html += `<div class="flex flex-col gap-3 min-h-[250px] bg-slate-100/50 p-2.5 rounded-xl border border-slate-200/60">`;
+                html += `<div class="flex flex-col gap-2 min-h-[220px] bg-slate-100/60 p-2 rounded-2xl border border-slate-200/60">`;
                 
-                // Urutkan jadwal di hari ini berdasarkan waktu mulai (menit absolut)
+                // Sort by start time
                 grouped[day].sort((a, b) => a._startMins - b._startMins);
                 
                 grouped[day].forEach((course, i) => {
-                    const colorClasses = ['bg-blue-500', 'bg-emerald-500', 'bg-purple-500', 'bg-amber-500', 'bg-pink-500', 'bg-indigo-500'];
-                    const colorClass = colorClasses[(colIdx + i) % colorClasses.length];
+                    const colorAccents = [
+                        'border-l-blue-500 bg-blue-50/20', 
+                        'border-l-emerald-500 bg-emerald-50/20', 
+                        'border-l-purple-500 bg-purple-50/20', 
+                        'border-l-amber-500 bg-amber-50/20', 
+                        'border-l-indigo-500 bg-indigo-50/20'
+                    ];
+                    const accent = colorAccents[(colIdx + i) % colorAccents.length];
                     
                     html += `
-                        <div class="p-3 rounded-xl border border-slate-200 bg-white shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-                            <!-- Pita Warna Kiri -->
-                            <div class="absolute left-0 top-0 bottom-0 w-1.5 ${colorClass}"></div>
+                        <div class="p-2.5 rounded-xl border border-slate-200/90 bg-white shadow-sm relative overflow-hidden group hover:shadow-md transition-all border-l-4 ${accent}">
+                            <div class="flex justify-between items-start gap-1 mb-1">
+                                <h4 class="font-bold text-slate-800 text-xs leading-snug pr-1">${course.nama}</h4>
+                                <button onclick="removeCourse('${course.id}')" class="delete-btn text-slate-400 hover:text-rose-600 hover:bg-rose-50 w-4 h-4 rounded transition-colors flex items-center justify-center shrink-0" title="Hapus Kelas">
+                                    <i class="fas fa-times text-[10px]"></i>
+                                </button>
+                            </div>
                             
-                            <div class="pl-2">
-                                <div class="flex justify-between items-start mb-2 gap-1">
-                                    <h4 class="font-bold text-slate-800 text-xs leading-snug pr-2">${course.nama}</h4>
-                                    <button onclick="removeCourse('${course.id}')" class="delete-btn flex-shrink-0 text-slate-400 hover:text-red-500 hover:bg-red-50 w-6 h-6 rounded-md transition-colors flex items-center justify-center opacity-100 lg:opacity-0 group-hover:opacity-100 -mt-1 -mr-1" title="Hapus">
-                                        <i class="fas fa-times text-xs"></i>
-                                    </button>
-                                </div>
-                                
-                                <div class="flex flex-wrap gap-1 mb-2">
-                                    <span class="text-[10px] font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
-                                        ${course.kode} • Kls ${course.kelas}
-                                    </span>
-                                </div>
+                            <div class="flex flex-wrap items-center gap-1 mb-1.5">
+                                <span class="text-[9px] font-extrabold text-blue-700 bg-blue-50 px-1 py-0.2 rounded border border-blue-100">Sem ${course.semester}</span>
+                                <span class="text-[9px] font-bold text-slate-700 bg-slate-100 px-1 py-0.2 rounded border border-slate-200">
+                                    ${course.kode} • Kls ${course.kelas}
+                                </span>
+                                <span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-100">${course.sks} SKS</span>
+                            </div>
 
-                                <div class="text-[10px] text-slate-500 space-y-1.5">
-                                    <div class="flex items-center gap-1.5 font-semibold text-blue-700 bg-blue-50 p-1 rounded-md border border-blue-100 w-fit">
-                                        <i class="fas fa-clock text-blue-400"></i> ${course.mulai} - ${course.selesai}
-                                    </div>
-                                    <div class="flex items-start gap-1.5 pt-1">
-                                        <i class="fas fa-map-marker-alt text-red-400 mt-0.5 w-3 text-center"></i>
-                                        <span class="line-clamp-1 font-medium">${course.ruang}</span>
-                                    </div>
-                                    <div class="flex items-start gap-1.5">
-                                        <i class="fas fa-user-tie text-slate-400 mt-0.5 w-3 text-center"></i>
-                                        <span class="line-clamp-2 leading-tight">${course.dosen}</span>
-                                    </div>
+                            <div class="text-[10px] text-slate-500 space-y-0.5 pt-0.5">
+                                <div class="flex items-center gap-1 font-bold text-blue-700 bg-blue-50/80 px-1.5 py-0.5 rounded border border-blue-100/80 w-fit text-[9px]">
+                                    <i class="fas fa-clock text-blue-500"></i> ${course.mulai} - ${course.selesai}
+                                </div>
+                                <div class="flex items-center gap-1 text-slate-600 font-medium text-[10px]">
+                                    <i class="fas fa-location-dot text-rose-500 w-3 text-center"></i>
+                                    <span class="truncate">Ruang ${course.ruang}</span>
+                                </div>
+                                <div class="flex items-center gap-1 text-slate-500 text-[10px]">
+                                    <i class="fas fa-user-tie text-slate-400 w-3 text-center"></i>
+                                    <span class="truncate">${course.dosen}</span>
                                 </div>
                             </div>
                         </div>
@@ -459,7 +636,10 @@
                 });
 
                 if(grouped[day].length === 0) {
-                    html += `<div class="h-full flex items-center justify-center opacity-40"><span class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">- Kosong -</span></div>`;
+                    html += `
+                        <div class="flex-grow flex items-center justify-center p-2 opacity-40 border border-dashed border-slate-200 rounded-xl">
+                            <span class="text-[9px] font-semibold text-slate-400 tracking-wider uppercase">Tidak ada jadwal</span>
+                        </div>`;
                 }
 
                 html += `</div>`;
@@ -469,92 +649,83 @@
             container.innerHTML = html;
         }
 
-        // --- STREAMING_CHUNK:Export JPG (html2canvas) ---
         async function exportJadwal() {
             if (selectedCourses.length === 0) return;
             
-            showLoader("Menyimpan Gambar...");
+            showLoader("Menyiapkan Gambar JPG...");
             
             const captureArea = document.getElementById('capture-area');
             const header = document.getElementById('export-header');
             const footer = document.getElementById('export-footer');
-            const jadwalTitle = document.getElementById('title-jadwal');
+            const titleJadwal = document.getElementById('title-jadwal');
             
-            // Persiapan DOM
             const now = new Date();
             const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById('export-time').textContent = `Dicetak pada: ${dateStr}`;
 
             header.classList.remove('hidden');
             footer.classList.remove('hidden');
-            jadwalTitle.classList.add('hidden'); // Sembunyikan judul asli saat print
+            titleJadwal.classList.add('hidden');
             
-            // Sembunyikan tombol delete
             document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = 'none');
             
-            // Styling khusus canvas agar rapi
             const origClasses = captureArea.className;
             captureArea.className = "w-full flex flex-col bg-white overflow-visible rounded-none border-none shadow-none";
 
             try {
-                // Tunggu render DOM
-                await new Promise(r => setTimeout(r, 400));
+                await new Promise(r => setTimeout(r, 450));
 
                 const canvas = await html2canvas(captureArea, {
                     scale: 2, 
                     backgroundColor: '#ffffff',
                     useCORS: true,
                     logging: false,
-                    windowWidth: 1200 // Paksa lebar virtual agar tabel tidak terpotong
+                    windowWidth: 1250
                 });
 
                 const link = document.createElement('a');
-                link.download = `KRS_Jadwal_${new Date().getTime()}.jpg`;
-                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.download = `Jadwal_KRS_${new Date().toISOString().slice(0,10)}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.92);
                 link.click();
 
-                showToast('Berhasil disimpan sebagai JPG!', 'success');
+                showToast('Jadwal berhasil diunduh sebagai gambar JPG!', 'success');
 
             } catch (err) {
                 console.error(err);
-                showToast('Gagal memproses gambar.', 'error');
+                showToast('Gagal memproses gambar jadwal.', 'error');
             } finally {
-                // Kembalikan DOM
                 header.classList.add('hidden');
                 footer.classList.add('hidden');
-                jadwalTitle.classList.remove('hidden');
+                titleJadwal.classList.remove('hidden');
                 captureArea.className = origClasses;
                 document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = '');
                 hideLoader();
             }
         }
 
-        // --- STREAMING_CHUNK:Utilities ---
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             
             const config = {
-                success: { color: 'bg-emerald-50 text-emerald-800 border-emerald-400', icon: 'fa-check-circle text-emerald-500' },
-                error: { color: 'bg-red-50 text-red-800 border-red-400', icon: 'fa-exclamation-circle text-red-500' },
-                info: { color: 'bg-blue-50 text-blue-800 border-blue-400', icon: 'fa-info-circle text-blue-500' }
+                success: { color: 'bg-emerald-50 text-emerald-900 border-emerald-300', icon: 'fa-check-circle text-emerald-600' },
+                error: { color: 'bg-rose-50 text-rose-900 border-rose-300', icon: 'fa-exclamation-circle text-rose-600' },
+                info: { color: 'bg-blue-50 text-blue-900 border-blue-300', icon: 'fa-info-circle text-blue-600' }
             };
 
-            toast.className = `flex items-start gap-3 p-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border ${config[type].color} transition-all duration-300 transform translate-x-full opacity-0 pointer-events-auto max-w-sm`;
-            toast.innerHTML = `<i class="fas ${config[type].icon} text-xl mt-0.5"></i> <div class="text-sm font-medium leading-relaxed">${message}</div>`;
+            toast.className = `flex items-start gap-3 p-3.5 rounded-xl shadow-lg border ${config[type].color} transition-all duration-300 transform translate-x-full opacity-0 pointer-events-auto w-full`;
+            toast.innerHTML = `<i class="fas ${config[type].icon} text-base mt-0.5 shrink-0"></i> <div class="text-xs font-medium leading-relaxed">${message}</div>`;
             
             container.appendChild(toast);
             
-            // Animasi Masuk
             requestAnimationFrame(() => {
                 toast.classList.remove('translate-x-full', 'opacity-0');
             });
 
-            // Animasi Keluar
             setTimeout(() => {
                 toast.classList.add('translate-x-full', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
-            }, 4000);
+            }, 3800);
         }
 
         function showLoader(msg) {
