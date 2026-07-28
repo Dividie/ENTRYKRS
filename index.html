@@ -42,6 +42,35 @@
     <!-- Notification Toast Container -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
 
+    <!-- Modal Pop-up Lapor Data Salah -->
+    <div id="report-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity duration-200 opacity-0" onclick="if(event.target === this) closeReportModal()">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-100 transform transition-transform duration-200 scale-95" id="report-modal-card">
+            <div class="flex items-center justify-between mb-3.5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold shrink-0">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-sm sm:text-base">Lapor Data Salah</h3>
+                </div>
+                <button onclick="closeReportModal()" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+            
+            <div class="text-slate-600 text-xs sm:text-sm leading-relaxed space-y-2 mb-5">
+                <p class="font-medium">Jika Menemukan Data Salah Silahkan Email Ke : <a class="font-bold text-blue-600 ">xcydes@gmail.com</a></p>
+                <p class="text-slate-500 font-medium">Terima Kasih atas partisipasi anda pada simulasi ini</p>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                
+                <button onclick="closeReportModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-semibold transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="max-w-[1500px] w-full mx-auto p-2 md:p-3 flex flex-col min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden">
         
         <!-- Header Utama -->
@@ -80,10 +109,10 @@
 
                 <!-- Action Buttons & Contact Info -->
                 <div class="flex items-center gap-2">
-                    <a href="mailto:xcydes@gmail.com?subject=Laporan%20Kesalahan%20Data%20Matakuliah%20-%20Simulasi%20KRS" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-3 py-2 rounded-xl font-semibold text-xs transition flex items-center gap-1.5 shrink-0" title="Laporkan jika ada kesalahan informasi matakuliah">
+                    <button onclick="showReportModal()" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-3 py-2 rounded-xl font-semibold text-xs transition flex items-center gap-1.5 shrink-0" title="Laporkan jika ada kesalahan informasi matakuliah">
                         <i class="fas fa-exclamation-circle text-amber-600 text-xs"></i>
                         <span class="hidden sm:inline text-[11px]">Lapor Data Salah</span>
-                    </a>
+                    </button>
 
                     <button onclick="clearAllCourses()" id="btn-reset" class="bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 px-3 py-2 rounded-xl font-semibold text-xs transition border border-slate-200 hover:border-red-200 flex items-center gap-1.5 opacity-50 cursor-not-allowed" disabled title="Kosongkan Semua Jadwal">
                         <i class="fas fa-trash-alt text-xs"></i>
@@ -734,6 +763,28 @@
         }
         function hideLoader() {
             document.getElementById('loader').style.display = 'none';
+        }
+
+        function showReportModal() {
+            const modal = document.getElementById('report-modal');
+            const card = document.getElementById('report-modal-card');
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+            });
+        }
+
+        function closeReportModal() {
+            const modal = document.getElementById('report-modal');
+            const card = document.getElementById('report-modal-card');
+            modal.classList.add('opacity-0');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
         }
     </script>
 </body>
