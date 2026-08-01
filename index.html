@@ -80,7 +80,7 @@
                 </div>
                 <div>
                     <h1 class="text-lg md:text-xl font-extrabold text-slate-800 tracking-tight leading-tight">Simulasi KRS-Mu</h1>
-                    <p class="text-[11px] md:text-xs text-slate-500 font-medium">Simulasi ini hanya untuk mahasiswa semester 3 karna saya malas input data.</p>
+                    <p class="text-[11px] md:text-xs text-slate-500 font-medium">Pilih mata kuliah dari semester 1, 3, 5, dan 7 untuk merencanakan jadwal Anda.</p>
                 </div>
             </div>
 
@@ -190,7 +190,7 @@
     </div>
 
     <script>
-        // --- DATA MATA KULIAH (DATABASE) ---
+        // --- DATA MATA KULIAH (DATABASE STATIS) ---
 
         const db_semester_1 = [
             { id: 's1_1', semester: 1, kode: 'IFE101A', kelas: 'A', nama: 'Bahasa Inggris', sks: 2, dosen: 'Dr. AISYAH RIRIN PERWIKASIH UTARI, S.S., M.Pd', hari: 'Kamis', mulai: '11:20', selesai: '12:59', ruang: 'J.3.11' },
@@ -245,13 +245,13 @@
             { id: 's3_7', semester: 3, kode: 'IFE203B', kelas: 'B', nama: 'Rekayasa Perangkat Lunak', sks: 3, dosen: 'RATIH NINDYASARI, S.Kom., M.Kom.', hari: 'Jumat', mulai: '13:00', selesai: '15:29', ruang: 'J.3.01' },
             { id: 's3_8', semester: 3, kode: 'IFE203C', kelas: 'C', nama: 'Rekayasa Perangkat Lunak', sks: 3, dosen: 'RATIH NINDYASARI, S.Kom., M.Kom.', hari: 'Rabu', mulai: '13:00', selesai: '15:29', ruang: 'J.4.10' },
             { id: 's3_9', semester: 3, kode: 'IFE203D', kelas: 'D', nama: 'Rekayasa Perangkat Lunak', sks: 3, dosen: 'RATIH NINDYASARI, S.Kom., M.Kom.', hari: 'Selasa', mulai: '12:10', selesai: '14:39', ruang: 'J.4.06' },
-            { id: 's3_10', semester: 3, kode: 'IFE203E', kelas: 'E', nama: 'Rekayasa Perangkat Lunak', sks: 3, dosen: 'RATIH NINDYASARI, S.Kom., M.Kom.', hari: 'Jumat', mulai: '08:50', selesai: '11:19', ruang: 'J.3.01' },
+            { id: 's3_10', semester: 3, kode: 'IFE203E', kelas: 'E', nama: 'Rekayasa Perangkat Lunak', sks: 3, dosen: 'RATIH NINDYASARI, S.Kom., M.Kom.', hari: 'Kamis', mulai: '12:10', selesai: '14:39', ruang: 'J.3.03' },
             
-            { id: 's3_11', semester: 3, kode: 'IFE205A', kelas: 'A', nama: 'Pemrograman Berorientasi Objek', sks: 3, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Rabu', mulai: '11:20', selesai: '12:59', ruang: 'J.4.11' },
-            { id: 's3_12', semester: 3, kode: 'IFE205B', kelas: 'B', nama: 'Pemrograman Berorientasi Objek', sks: 3, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Rabu', mulai: '08:00', selesai: '09:39', ruang: 'J.4.11' },
-            { id: 's3_13', semester: 3, kode: 'IFE205C', kelas: 'C', nama: 'Pemrograman Berorientasi Objek', sks: 3, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Rabu', mulai: '09:40', selesai: '11:19', ruang: 'J.4.11' },
-            { id: 's3_14', semester: 3, kode: 'IFE205D', kelas: 'D', nama: 'Pemrograman Berorientasi Objek', sks: 3, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Selasa', mulai: '10:30', selesai: '12:09', ruang: 'J.4.06' },
-            { id: 's3_15', semester: 3, kode: 'IFE205E', kelas: 'E', nama: 'Pemrograman Berorientasi Objek', sks: 3, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Rabu', mulai: '11:20', selesai: '12:59', ruang: 'J.4.10' },
+            { id: 's3_11', semester: 3, kode: 'IFE205A', kelas: 'A', nama: 'Pemrograman Berorientasi Objek', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Rabu', mulai: '11:20', selesai: '12:59', ruang: 'J.4.11' },
+            { id: 's3_12', semester: 3, kode: 'IFE205B', kelas: 'B', nama: 'Pemrograman Berorientasi Objek', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Rabu', mulai: '08:00', selesai: '09:39', ruang: 'J.4.11' },
+            { id: 's3_13', semester: 3, kode: 'IFE205C', kelas: 'C', nama: 'Pemrograman Berorientasi Objek', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Rabu', mulai: '09:40', selesai: '11:19', ruang: 'J.4.11' },
+            { id: 's3_14', semester: 3, kode: 'IFE205D', kelas: 'D', nama: 'Pemrograman Berorientasi Objek', sks: 2, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Selasa', mulai: '10:30', selesai: '12:09', ruang: 'J.4.06' },
+            { id: 's3_15', semester: 3, kode: 'IFE205E', kelas: 'E', nama: 'Pemrograman Berorientasi Objek', sks: 2, dosen: 'ALDHI ARI KURNIAWAN, M.Kom.', hari: 'Rabu', mulai: '11:20', selesai: '12:59', ruang: 'J.4.10' },
 
             { id: 's3_16', semester: 3, kode: 'IFE207A', kelas: 'A', nama: 'Praktikum Pemrograman Berorientasi Objek', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Selasa', mulai: '08:00', selesai: '10:29', ruang: 'I.3.06' },
             { id: 's3_17', semester: 3, kode: 'IFE207B', kelas: 'B', nama: 'Praktikum Pemrograman Berorientasi Objek', sks: 2, dosen: 'Dr. AHMAD ABDUL CHAMID, S.Kom., M.Kom.', hari: 'Selasa', mulai: '10:30', selesai: '12:59', ruang: 'I.3.06' },
@@ -274,14 +274,14 @@
             { id: 's3_31', semester: 3, kode: 'IFE213A', kelas: 'A', nama: 'Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Kamis', mulai: '08:00', selesai: '09:39', ruang: 'J.4.03' },
             { id: 's3_32', semester: 3, kode: 'IFE213B', kelas: 'B', nama: 'Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Kamis', mulai: '09:40', selesai: '11:19', ruang: 'J.4.03' },
             { id: 's3_33', semester: 3, kode: 'IFE213C', kelas: 'C', nama: 'Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Senin', mulai: '13:00', selesai: '14:39', ruang: 'J.4.06' },
-            { id: 's3_34', semester: 3, kode: 'IFE213D', kelas: 'D', nama: 'Jaringan Komputer', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Kamis', mulai: '09:40', selesai: '11:19', ruang: 'J.4.06' },
-            { id: 's3_35', semester: 3, kode: 'IFE213E', kelas: 'E', nama: 'Jaringan Komputer', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Kamis', mulai: '08:00', selesai: '09:39', ruang: 'J.4.06' },
+            { id: 's3_34', semester: 3, kode: 'IFE213D', kelas: 'D', nama: 'Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Kamis', mulai: '11:20', selesai: '12:59', ruang: 'J.4.04' },
+            { id: 's3_35', semester: 3, kode: 'IFE213E', kelas: 'E', nama: 'Jaringan Komputer', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Jumat', mulai: '08:00', selesai: '09:39', ruang: 'J.3.01' },
 
             { id: 's3_36', semester: 3, kode: 'IFE215A', kelas: 'A', nama: 'Praktikum Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Senin', mulai: '08:00', selesai: '10:29', ruang: 'I.3.03' },
             { id: 's3_37', semester: 3, kode: 'IFE215B', kelas: 'B', nama: 'Praktikum Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Senin', mulai: '10:30', selesai: '12:59', ruang: 'I.3.03' },
             { id: 's3_38', semester: 3, kode: 'IFE215C', kelas: 'C', nama: 'Praktikum Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Jumat', mulai: '08:00', selesai: '10:29', ruang: 'I.3.04' },
-            { id: 's3_39', semester: 3, kode: 'IFE215D', kelas: 'D', nama: 'Praktikum Jaringan Komputer', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Rabu', mulai: '10:30', selesai: '12:59', ruang: 'I.3.03' },
-            { id: 's3_40', semester: 3, kode: 'IFE215E', kelas: 'E', nama: 'Praktikum Jaringan Komputer', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Rabu', mulai: '08:00', selesai: '10:29', ruang: 'I.3.03' }
+            { id: 's3_39', semester: 3, kode: 'IFE215D', kelas: 'D', nama: 'Praktikum Jaringan Komputer', sks: 2, dosen: 'M. IMAM GHOZALI, M.Kom.', hari: 'Jumat', mulai: '13:00', selesai: '15:29', ruang: 'I.3.03' },
+            { id: 's3_40', semester: 3, kode: 'IFE215E', kelas: 'E', nama: 'Praktikum Jaringan Komputer', sks: 2, dosen: 'INDRA LINA PUTRA, S.Kom., M.Kom.', hari: 'Rabu', mulai: '10:30', selesai: '12:59', ruang: 'I.3.03' }
         ];
 
         const db_semester_5 = [
@@ -294,12 +294,13 @@
         ];
 
         const db_semester_7 = [
-            { id: 's7_1', semester: 7, kode: 'FTI401', kelas: '-', nama: 'Technopreneurship', sks: 2, dosen: 'ARIEF SUSANTO, ST.M.Kom', hari: 'Senin', mulai: '11:20', selesai: '12:59', ruang: 'J.4.06' },
-            { id: 's7_2', semester: 7, kode: 'FTI403A', kelas: 'A', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Senin', mulai: '08:00', selesai: '10:29', ruang: 'J.4.04' },
-            { id: 's7_3', semester: 7, kode: 'FTI403B', kelas: 'B', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Senin', mulai: '10:30', selesai: '12:59', ruang: 'J.4.04' },
-            { id: 's7_4', semester: 7, kode: 'FTI403C', kelas: 'C', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Jumat', mulai: '08:00', selesai: '10:29', ruang: 'J.4.11' },
-            { id: 's7_5', semester: 7, kode: 'FTI403D', kelas: 'D', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Rabu', mulai: '12:10', selesai: '14:39', ruang: 'J.4.04' },
-            { id: 's7_6', semester: 7, kode: 'FTI403E', kelas: 'E', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Senin', mulai: '13:00', selesai: '15:29', ruang: 'J.4.04' }
+            { id: 's7_1', semester: 7, kode: 'FTI401A', kelas: 'A', nama: 'Technopreneurship', sks: 2, dosen: 'ARIEF SUSANTO, ST.M.Kom', hari: 'Senin', mulai: '11:20', selesai: '12:59', ruang: 'J.4.06' },
+            { id: 's7_2', semester: 7, kode: 'FTI401B', kelas: 'B', nama: 'Technopreneurship', sks: 2, dosen: 'ARIEF SUSANTO, ST.M.Kom', hari: 'Kamis', mulai: '10:30', selesai: '12:09', ruang: 'J.4.06' },
+            { id: 's7_3', semester: 7, kode: 'FTI403A', kelas: 'A', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Senin', mulai: '08:00', selesai: '10:29', ruang: 'J.4.04' },
+            { id: 's7_4', semester: 7, kode: 'FTI403B', kelas: 'B', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Senin', mulai: '10:30', selesai: '12:59', ruang: 'J.4.04' },
+            { id: 's7_5', semester: 7, kode: 'FTI403C', kelas: 'C', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Jumat', mulai: '08:00', selesai: '10:29', ruang: 'J.4.11' },
+            { id: 's7_6', semester: 7, kode: 'FTI403D', kelas: 'D', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Rabu', mulai: '12:10', selesai: '14:39', ruang: 'J.4.04' },
+            { id: 's7_7', semester: 7, kode: 'FTI403E', kelas: 'E', nama: 'Etika Profesi Teknik', sks: 2, dosen: 'EVANITA, S.Kom, M.Kom', hari: 'Rabu', mulai: '09:40', selesai: '12:09', ruang: 'J.4.04' }
         ];
 
         // Combine all semester data
